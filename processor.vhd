@@ -34,10 +34,44 @@ architecture rtl of processor is
 	-----------------------------------
 	-- STAGE 2: ID --------------------
 	-----------------------------------
+	signal ID_A : STD_LOGIC_VECTOR(31 DOWNTO 0);
+	signal ID_B : STD_LOGIC_VECTOR(31 DOWNTO 0);
+	signal ID_Imm : STD_LOGIC_VECTOR(31 DOWNTO 0);
+	signal ID_IR : STD_LOGIC_VECTOR(31 DOWNTO 0);
+	signal ID_NPC : STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+	signal ID_ALUSrc : STD_LOGIC;
+	signal ID_ALUOp : STD_LOGIC_VECTOR(1 DOWNTO 0);
+	signal ID_ALUFunc : STD_LOGIC_VECTOR(3 DOWNTO 0);
+	signal ID_Branch : STD_LOGIC;
+	signal ID_BranchType : STD_LOGIC_VECTOR(2 DOWNTO 0);
+	signal ID_Jump : STD_LOGIC;
+	signal ID_JumpReg : STD_LOGIC;
+	signal ID_MemRead : STD_LOGIC;
+	signal ID_MemWrite : STD_LOGIC;
+	signal ID_RegWrite : STD_LOGIC;
+	signal ID_MemToReg : STD_LOGIC;
 	
 	-----------------------------------
 	-- ID/EXEC Pipeline registers -----
 	-----------------------------------
+	signal IDEX_A : STD_LOGIC_VECTOR(31 DOWNTO 0);
+	signal IDEX_B : STD_LOGIC_VECTOR(31 DOWNTO 0);
+	signal IDEX_Imm : STD_LOGIC_VECTOR(31 DOWNTO 0);
+	signal IDEX_IR : STD_LOGIC_VECTOR(31 DOWNTO 0);
+	signal IDEX_NPC : STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+	signal IDEX_ALUSrc : STD_LOGIC;
+	signal IDEX_ALUOp : STD_LOGIC_VECTOR(1 DOWNTO 0);
+	signal IDEX_ALUFunc : STD_LOGIC_VECTOR(3 DOWNTO 0);
+	signal IDEX_Branch : STD_LOGIC;
+	signal IDEX_BranchType : STD_LOGIC_VECTOR(2 DOWNTO 0);
+	signal IDEX_Jump : STD_LOGIC;
+	signal IDEX_JumpReg : STD_LOGIC;
+	signal IDEX_MemRead : STD_LOGIC;
+	signal IDEX_MemWrite : STD_LOGIC;
+	signal IDEX_RegWrite : STD_LOGIC;
+	signal IDEX_MemToReg : STD_LOGIC;
 	
 	
 	
@@ -82,10 +116,59 @@ architecture rtl of processor is
 			NPC : out STD_LOGIC_VECTOR(31 DOWNTO 0)
 		);
 	end component;
+
+	component instruction_decode is
+		port(
+			clk : in STD_LOGIC;
+			reset : in STD_LOGIC;
+			IR : in STD_LOGIC_VECTOR(31 DOWNTO 0);
+			NPC : in STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+			A : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+			B : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+			Imm : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+			IR_out : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+			NPC_out : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+			ALUSrc : out STD_LOGIC;
+			ALUOp : out STD_LOGIC_VECTOR(1 DOWNTO 0);
+			ALUFunc : out STD_LOGIC_VECTOR(3 DOWNTO 0);
+			Branch : out STD_LOGIC;
+			BranchType : out STD_LOGIC_VECTOR(2 DOWNTO 0);
+			Jump : out STD_LOGIC;
+			JumpReg : out STD_LOGIC;
+			MemRead : out STD_LOGIC;
+			MemWrite : out STD_LOGIC;
+			RegWrite : out STD_LOGIC;
+			MemToReg : out STD_LOGIC
+		);
+	end component;
 	
 	begin
 		-- pipeline stage instantiations
 		IF_stage : instruction_fetch port map(clk => clk, reset => reset, cond => cond, branch_target => branch_target, stall => stall, IR => IF_IR, NPC => IF_NPC);
+		ID_stage : instruction_decode port map(
+			clk => clk,
+			reset => reset,
+			IR => IFID_IR,
+			NPC => IFID_NPC,
+			A => ID_A,
+			B => ID_B,
+			Imm => ID_Imm,
+			IR_out => ID_IR,
+			NPC_out => ID_NPC,
+			ALUSrc => ID_ALUSrc,
+			ALUOp => ID_ALUOp,
+			ALUFunc => ID_ALUFunc,
+			Branch => ID_Branch,
+			BranchType => ID_BranchType,
+			Jump => ID_Jump,
+			JumpReg => ID_JumpReg,
+			MemRead => ID_MemRead,
+			MemWrite => ID_MemWrite,
+			RegWrite => ID_RegWrite,
+			MemToReg => ID_MemToReg
+		);
 		
 		process(clk, reset)
 		begin
@@ -107,6 +190,92 @@ architecture rtl of processor is
 					IFID_IR  <= IF_IR;
 					IFID_NPC <= IF_NPC;
 			  end if;
+			end if;
+		end process;
+
+		process(clk, reset)
+		begin
+			if reset = '1' then
+				-- reset ID/EX pipeline registers
+				IDEX_A <= (others => '0');
+				IDEX_B <= (others => '0');
+				IDEX_Imm <= (others => '0');
+				IDEX_IR <= (others => '0');
+				IDEX_NPC <= (others => '0');
+
+				IDEX_ALUSrc <= '0';
+				IDEX_ALUOp <= "00";
+				IDEX_ALUFunc <= "0000";
+				IDEX_Branch <= '0';
+				IDEX_BranchType <= (others => '0');
+				IDEX_Jump <= '0';
+				IDEX_JumpReg <= '0';
+				IDEX_MemRead <= '0';
+				IDEX_MemWrite <= '0';
+				IDEX_RegWrite <= '0';
+				IDEX_MemToReg <= '0';
+
+			elsif rising_edge(clk) then
+				if stall = '1' then
+					-- hold ID/EX state on stall
+					IDEX_A <= IDEX_A;
+					IDEX_B <= IDEX_B;
+					IDEX_Imm <= IDEX_Imm;
+					IDEX_IR <= IDEX_IR;
+					IDEX_NPC <= IDEX_NPC;
+
+					IDEX_ALUSrc <= IDEX_ALUSrc;
+					IDEX_ALUOp <= IDEX_ALUOp;
+					IDEX_ALUFunc <= IDEX_ALUFunc;
+					IDEX_Branch <= IDEX_Branch;
+					IDEX_BranchType <= IDEX_BranchType;
+					IDEX_Jump <= IDEX_Jump;
+					IDEX_JumpReg <= IDEX_JumpReg;
+					IDEX_MemRead <= IDEX_MemRead;
+					IDEX_MemWrite <= IDEX_MemWrite;
+					IDEX_RegWrite <= IDEX_RegWrite;
+					IDEX_MemToReg <= IDEX_MemToReg;
+
+				elsif cond = '1' then
+					-- flush decode output on taken branch (inject bubble)
+					IDEX_A <= (others => '0');
+					IDEX_B <= (others => '0');
+					IDEX_Imm <= (others => '0');
+					IDEX_IR <= (others => '0');
+					IDEX_NPC <= (others => '0');
+
+					IDEX_ALUSrc <= '0';
+					IDEX_ALUOp <= "00";
+					IDEX_ALUFunc <= "0000";
+					IDEX_Branch <= '0';
+					IDEX_BranchType <= (others => '0');
+					IDEX_Jump <= '0';
+					IDEX_JumpReg <= '0';
+					IDEX_MemRead <= '0';
+					IDEX_MemWrite <= '0';
+					IDEX_RegWrite <= '0';
+					IDEX_MemToReg <= '0';
+
+				else
+					-- latch decode outputs into ID/EX pipeline registers
+					IDEX_A <= ID_A;
+					IDEX_B <= ID_B;
+					IDEX_Imm <= ID_Imm;
+					IDEX_IR <= ID_IR;
+					IDEX_NPC <= ID_NPC;
+
+					IDEX_ALUSrc <= ID_ALUSrc;
+					IDEX_ALUOp <= ID_ALUOp;
+					IDEX_ALUFunc <= ID_ALUFunc;
+					IDEX_Branch <= ID_Branch;
+					IDEX_BranchType <= ID_BranchType;
+					IDEX_Jump <= ID_Jump;
+					IDEX_JumpReg <= ID_JumpReg;
+					IDEX_MemRead <= ID_MemRead;
+					IDEX_MemWrite <= ID_MemWrite;
+					IDEX_RegWrite <= ID_RegWrite;
+					IDEX_MemToReg <= ID_MemToReg;
+				end if;
 			end if;
 		end process;
 end rtl;

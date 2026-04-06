@@ -1,0 +1,1 @@
+add, sub, mul, or, and, addi, xori, ori, andi, lw, sw, beq, bne, blt, bge, jal, jalr, lui, sll, srl, sra, slti, auipc
