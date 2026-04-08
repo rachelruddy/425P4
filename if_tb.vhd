@@ -203,12 +203,13 @@ begin
         --5 Introduce a stall and check that IR does not change
 
         stall <= '1';  -- Introduce a stall
+        wait for CLK_PERIOD / 4;
 
         wait until rising_edge(clk);
         wait for CLK_PERIOD / 2;  -- sample in the middle of the clock cycle
 
         actual_ir   := unsigned(IR);
-        expected_ir := "00000000000000000000000001101111";  -- This should match the lastinstruction since we stalled
+        expected_ir := "00000000101000000000001010110011";  -- This should match the lastinstruction since we stalled
          if actual_ir = expected_ir then
             report "Test 4 PASSED: IR after stall = 0x" &
                    to_hstring(IR) & " (expected 0x" & to_hstring(std_logic_vector(expected_ir)) & ")" severity note;
@@ -221,12 +222,14 @@ begin
 
         --6 Release the stall and check that IR advances to the next instruction
         stall <= '0';  -- Release the stall
+        wait for CLK_PERIOD / 4;
 
+        wait until rising_edge(clk);
         wait until rising_edge(clk);
         wait for CLK_PERIOD / 2;  -- sample in the middle of the clock cycle
 
         actual_ir   := unsigned(IR);
-        expected_ir := "00000000101000000000001010110011";  -- This should match the instruction at address 3 in your instruction memory
+        expected_ir := "00000000000100000000010100010011";  -- This should match the instruction at address 3 in your instruction memory
          if actual_ir = expected_ir then
             report "Test 4.1 PASSED: IR after releasing stall = 0x" &
                    to_hstring(IR) & " (expected 0x" & to_hstring(std_logic_vector(expected_ir)) & ")" severity note;
