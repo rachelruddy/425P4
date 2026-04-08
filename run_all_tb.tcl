@@ -16,7 +16,7 @@
 
 set SRC_DIR    "."
 set LIB        "work"
-set TB_ENTITY  "instruction_fetch_tb"
+set TB_ENTITY  "if_tb"
 set PROGRAM_IN "factorial_bin.txt"
 
 # Number of cycles to run
@@ -33,11 +33,12 @@ vmap work $LIB
 # and instruction_fetch before its testbench
 vcom -2008 -work $LIB $SRC_DIR/memory.vhd
 vcom -2008 -work $LIB $SRC_DIR/instruction_fetch.vhd
-vcom -2008 -work $LIB $SRC_DIR/instruction_fetch_tb.vhd
+vcom -2008 -work $LIB $SRC_DIR/if_tb.vhd
 
 puts "Compilation complete."
 
-vsim -t 1ns $LIB.$TB_ENTITY
+vsim -t 1ps $LIB.$TB_ENTITY
+set IterationLimit 100000
 
 
 # -----------------------------------------------------------------------------
@@ -58,8 +59,7 @@ vsim -t 1ns $LIB.$TB_ENTITY
 
 if {[file exists $PROGRAM_IN]} {
     puts "Loading $PROGRAM_IN into instruction memory..."
-    mem load -infile $PROGRAM_IN -format binary \
-        /instruction_fetch_tb/uut/instr_memory/ram_block
+    mem load -infile $PROGRAM_IN -format binary /if_tb/uut/instr_memory/ram_block
     puts "Program loaded successfully."
 } else {
     puts "WARNING: $PROGRAM_IN not found — instruction memory will be all zeros."
@@ -67,6 +67,7 @@ if {[file exists $PROGRAM_IN]} {
     puts "         NPC tests will still run correctly."
 }
 
+run 500ns
 
 puts "Running simulation for $NUM_CYCLES cycles..."
 run ${NUM_CYCLES}ns
