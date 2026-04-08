@@ -37,17 +37,22 @@ architecture rtl of instruction_fetch is
 	end component;
 	
 	signal PC : STD_LOGIC_VECTOR (31 DOWNTO 0);
+	signal waitrequest_unused : STD_LOGIC;		-- ModelSim for some stupid reason has issues with open so I replaced it witha dummy signal
+	signal pc_index : INTEGER RANGE 0 TO 8191;		-- word aligned, so ignore last 2 bits
 	
 	begin
+
+		pc_index <= to_integer(unsigned(PC(14 DOWNTO 2)));
+
 		instr_memory : memory
 		 PORT MAP(
 			clock => clk,
 			writedata => (others => '0'),
-			address => to_integer(unsigned(PC)) / 4,
+			address => pc_index,		-- word aligned, so ignore last 2 bits
 			memwrite => '0',
 			memread => '1',
 			readdata => IR,
-			waitrequest => open								-- do not care about this port, is unconnected
+			waitrequest => waitrequest_unused							-- do not care about this port, is unconnected
 		 );
 		 
 		 -- combinatorial logic
@@ -66,7 +71,7 @@ architecture rtl of instruction_fetch is
 				if (stall = '0') then
 					-- PC + 4
 					if (cond = '0') then
-						PC <= std_logic_vector(unsigned(PC) + 4);
+						PC <= NPC; --replaced here by NPC for simplicity and to avoid infinite loop of PC update since NPC is combinatorial and depends on PC
 					-- need to fetch memory from branch target
 					else
 						PC <= branch_target;
