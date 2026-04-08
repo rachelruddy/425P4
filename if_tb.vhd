@@ -1,5 +1,4 @@
-
--- instruction_fetch_tb.vhd
+-- if_tb.vhd
 -- ECSE 425 - Pipelined RISC-V Processor
 -- Testbench for: instruction_fetch.vhd
 
@@ -8,11 +7,11 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity instruction_fetch_tb is
+entity if_tb is
 
-end instruction_fetch_tb;
+end if_tb;
 
-architecture behavior of instruction_fetch_tb is
+architecture behavior of if_tb is
 
     component instruction_fetch is
         port (
@@ -105,7 +104,7 @@ begin
         wait for CLK_PERIOD / 2;  -- sample in the middle of the clock cycle
 
         actual_npc   := unsigned(NPC);
-        expected_npc := to_unsigned(4, 32);
+        expected_npc := to_unsigned(12, 32);
 
         if actual_npc = expected_npc then
             report "Test 1 PASSED: NPC after reset = 0x" &
@@ -127,7 +126,7 @@ begin
             wait for CLK_PERIOD / 2;
 
             actual_npc   := unsigned(NPC);
-            expected_npc := to_unsigned((i + 1) * 4, 32);
+            expected_npc := to_unsigned((i + 3) * 4, 32);
 
             if actual_npc = expected_npc then
                 report "Test 2." & integer'image(i) &
@@ -154,13 +153,13 @@ begin
 
         -- Release reset
         reset <= '0';
-        wait for CLK_PERIOD;
+        --wait for CLK_PERIOD;
 
         wait until rising_edge(clk);
         wait for CLK_PERIOD / 2;  -- sample in the middle of the clock cycle
 
         actual_ir   := unsigned(IR);
-        expected_ir := unsigned("00000000010100000000010100010011");  -- This should match the instruction at address 0 in your instruction memory
+        expected_ir := "00000000010100000000010100010011";  -- This should match the instruction at address 0 in your instruction memory
          if actual_ir = expected_ir then
             report "Test 3 PASSED: IR after reset = 0x" &
                    to_hstring(IR) & " (expected 0x" & to_hstring(std_logic_vector(expected_ir)) & ")" severity note;
@@ -175,7 +174,7 @@ begin
         wait for CLK_PERIOD / 2;  -- sample in the middle of the clock cycle
 
         actual_ir   := unsigned(IR);
-        expected_ir := unsigned("00000001000000000000000011101111");  -- This should match the instruction at address 1 in your instruction memory
+        expected_ir := "00000001000000000000000011101111";  -- This should match the instruction at address 1 in your instruction memory
          if actual_ir = expected_ir then
             report "Test 3.1 PASSED: IR at cycle 1 = 0x" &
                    to_hstring(IR) & " (expected 0x" & to_hstring(std_logic_vector(expected_ir)) & ")" severity note;
@@ -190,7 +189,7 @@ begin
         wait for CLK_PERIOD / 2;  -- sample in the middle of the clock cycle
 
         actual_ir   := unsigned(IR);
-        expected_ir := unsigned("00000000000000000000000001101111");  -- This should match the instruction at address 2 in your instruction memory
+        expected_ir := "00000000000000000000000001101111";  -- This should match the instruction at address 2 in your instruction memory
          if actual_ir = expected_ir then
             report "Test 3.2 PASSED: IR at cycle 2 = 0x" &
                    to_hstring(IR) & " (expected 0x" & to_hstring(std_logic_vector(expected_ir)) & ")" severity note;
@@ -209,7 +208,7 @@ begin
         wait for CLK_PERIOD / 2;  -- sample in the middle of the clock cycle
 
         actual_ir   := unsigned(IR);
-        expected_ir := unsigned("00000000000000000000000001101111");  -- This should match the lastinstruction since we stalled
+        expected_ir := "00000000000000000000000001101111";  -- This should match the lastinstruction since we stalled
          if actual_ir = expected_ir then
             report "Test 4 PASSED: IR after stall = 0x" &
                    to_hstring(IR) & " (expected 0x" & to_hstring(std_logic_vector(expected_ir)) & ")" severity note;
@@ -227,7 +226,7 @@ begin
         wait for CLK_PERIOD / 2;  -- sample in the middle of the clock cycle
 
         actual_ir   := unsigned(IR);
-        expected_ir := unsigned("00000000101000000000001010110011");  -- This should match the instruction at address 3 in your instruction memory
+        expected_ir := "00000000101000000000001010110011";  -- This should match the instruction at address 3 in your instruction memory
          if actual_ir = expected_ir then
             report "Test 4.1 PASSED: IR after releasing stall = 0x" &
                    to_hstring(IR) & " (expected 0x" & to_hstring(std_logic_vector(expected_ir)) & ")" severity note;
@@ -270,7 +269,7 @@ begin
         if fail_count = 0 then
             report "All tests PASSED." severity note;
         else
-            report "Some tests FAILED — check output above." severity error;
+            report "Some tests FAILED - check output above." severity error;
         end if;
 
         report "=== instruction_fetch_tb done ===" severity note;
