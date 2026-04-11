@@ -12,8 +12,7 @@ ENTITY execute IS
         IR : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         NPC : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         ALUSrc : IN STD_LOGIC;
-        ALUFunc : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
-        AUSrc : IN STD_LOGIC;
+        ALUFunc : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
         Branch : IN STD_LOGIC;
         BranchType : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
         Jump : IN STD_LOGIC;
@@ -21,7 +20,7 @@ ENTITY execute IS
         MemRead : IN STD_LOGIC;
         MemWrite : IN STD_LOGIC;
         RegWrite : IN STD_LOGIC;
-        MemToReg : IN STD_LOGIC;
+        MemToReg : IN STD_LOGIC;  
 
         ALUResult_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         B_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -43,7 +42,7 @@ ARCHITECTURE rtl OF execute IS
         PORT (
             A : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
             B : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-            ALUFunc : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
+            ALUFunc : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
             Result : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
             Zero : OUT STD_LOGIC;
             Negative : OUT STD_LOGIC;
@@ -77,7 +76,7 @@ ARCHITECTURE rtl OF execute IS
 
 BEGIN
 
-    alu_in_A <= NPC WHEN AUSrc = '1' ELSE
+    alu_in_A <= NPC WHEN ALUSrc = '1' ELSE
         A;
 
     alu_in_B <= Imm WHEN ALUSrc = '1' ELSE
