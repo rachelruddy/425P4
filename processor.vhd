@@ -10,7 +10,29 @@ USE ieee.numeric_std.all;
 entity processor is
 	port(
 		clk : in STD_LOGIC;
-      reset : in STD_LOGIC
+      reset : in STD_LOGIC;
+		
+		-- testing/debugging outputs (to be removed later)
+	  dbg_IF_IR   : out STD_LOGIC_VECTOR(31 downto 0);
+	  dbg_IFID_IR : out STD_LOGIC_VECTOR(31 downto 0);
+	  dbg_ID_IR   : out STD_LOGIC_VECTOR(31 downto 0);
+	  dbg_IF_NPC   : out STD_LOGIC_VECTOR(31 downto 0);
+	  dbg_IFID_NPC   : out STD_LOGIC_VECTOR(31 downto 0);
+	  dbg_ID_NPC   : out STD_LOGIC_VECTOR(31 downto 0);
+	  dbg_A : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+		dbg_B : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+		dbg_imm : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+		dbg_ALUSrc : out STD_LOGIC;
+		dbg_ALUOp : out STD_LOGIC_VECTOR(1 DOWNTO 0);
+		dbg_ALUFunc : out STD_LOGIC_VECTOR(3 DOWNTO 0);
+		dbg_Branch : out STD_LOGIC;
+		dbg_BranchType : out STD_LOGIC_VECTOR(2 DOWNTO 0);
+		dbg_Jump : out STD_LOGIC;
+		dbg_JumpReg : out STD_LOGIC;
+		dbg_MemRead : out STD_LOGIC;
+		dbg_MemWrite : out STD_LOGIC;
+		dbg_RegWrite : out STD_LOGIC;
+		dbg_MemToReg : out STD_LOGIC
 	);
 end processor;
 
@@ -145,8 +167,38 @@ architecture rtl of processor is
 	end component;
 	
 	begin
+		--testing signals
+		dbg_IF_IR   <= IF_IR;
+		dbg_IFID_IR <= IFID_IR;
+		dbg_ID_IR   <= ID_IR;
+		dbg_IF_NPC   <= IF_NPC;
+	   dbg_IFID_NPC  <= IFID_NPC;
+		dbg_ID_NPC <= ID_NPC;
+		dbg_A <= ID_A;
+		dbg_B <= ID_B;
+		dbg_imm <= ID_Imm;
+		dbg_ALUSrc <= ID_ALUSrc;
+		dbg_ALUOp <= ID_ALUOp;
+		dbg_ALUFunc <= ID_ALUFunc;
+		dbg_Branch <= ID_Branch;
+		dbg_BranchType <= ID_BranchType;
+		dbg_Jump <= ID_Jump;
+		dbg_JumpReg <= ID_JumpReg;
+		dbg_MemRead <= ID_MemRead;
+		dbg_MemWrite <= ID_MemWrite;
+		dbg_RegWrite <= ID_RegWrite;
+		dbg_MemToReg <= ID_MemToReg;
+
 		-- pipeline stage instantiations
-		IF_stage : instruction_fetch port map(clk => clk, reset => reset, cond => cond, branch_target => branch_target, stall => stall, IR => IF_IR, NPC => IF_NPC);
+		IF_stage : instruction_fetch port map(
+			clk => clk, 
+			reset => reset, 
+			cond => cond, 
+			branch_target => branch_target, 
+			stall => stall, 
+			IR => IF_IR, 
+			NPC => IF_NPC
+		);
 		ID_stage : instruction_decode port map(
 			clk => clk,
 			reset => reset,
@@ -169,6 +221,7 @@ architecture rtl of processor is
 			RegWrite => ID_RegWrite,
 			MemToReg => ID_MemToReg
 		);
+		
 		
 		process(clk, reset)
 		begin

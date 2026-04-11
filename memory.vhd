@@ -1,6 +1,7 @@
 -- P4: need 2 instantiations of memory (instruction memory and data memory)
 -- memwrite is always 0 for instruction memory
 -- edits: changed to return 32 bits instead of a byte, changed mem_delay to same time as clock period
+-- edits 04/10: removed signal read_adress_reg as this was causing a 2 cycle latency with instruction flow, now instruction is fetched combinatorially from input address
 
 
 --Adapted from Example 12-15 of Quartus Design and Synthesis handbook
@@ -11,7 +12,7 @@ USE ieee.numeric_std.all;
 ENTITY memory IS
 	GENERIC(
 		ram_size : INTEGER := 8192;  -- 8192 words × 4 bytes = 32768 bytes
-		mem_delay : time := 1 ns; -- mem access delay: PART 4- ALTERED THIS FROM 10 NS TO 1 NS SO DATA ARRIVES IN 1 CLOCK CYCLE (RACHEL)
+		mem_delay : time := 0.1 ns; -- mem access delay: PART 4- ALTERED THIS FROM 10 NS TO 1 NS SO DATA ARRIVES IN 1 CLOCK CYCLE (RACHEL)
 		clock_period : time := 1 ns
 	);
 	-- memory acts as "follower" device in master, follower design
@@ -36,7 +37,7 @@ ARCHITECTURE rtl OF memory IS
 	--actual memory array
 	SIGNAL ram_block: MEM;
 	-- latched address for reads
-	SIGNAL read_address_reg: INTEGER RANGE 0 to ram_size-1;
+	--SIGNAL read_address_reg: INTEGER RANGE 0 to ram_size-1;
 
 	-- tracks write operations
 	SIGNAL write_waitreq_reg: STD_LOGIC := '1';
@@ -47,11 +48,11 @@ BEGIN
 	mem_process: PROCESS (clock)
 	BEGIN
 		--This is a cheap trick to initialize the SRAM in simulation
-		-- IF(now < 1 ps)THEN
-		-- 	For i in 0 to ram_size-1 LOOP
-		-- 		ram_block(i) <= (others => '0');
-		-- 	END LOOP;
-		-- end if;
+		 --IF(now < 1 ps)THEN
+		 --	For i in 0 to ram_size-1 LOOP
+		 --		ram_block(i) <= (others => '0');
+		 --	END LOOP;
+		 --end if;
 
 		--This is the actual synthesizable SRAM block
 		IF (clock'event AND clock = '1') THEN
@@ -60,12 +61,13 @@ BEGIN
 				ram_block(address) <= writedata;
 			END IF;
 		--always latch onto the value of the address
-		read_address_reg <= address;
+		--read_address_reg <= address;
 		END IF;
 	END PROCESS;
 
 	--asynchronously put the contents of the latched address into readdata
-	readdata <= ram_block(read_address_reg);
+	--readdata <= ram_block(read_address_reg);
+	readdata <= ram_block(address);
 
 
 	--The waitrequest signal is used to vary response time in simulation

@@ -37,8 +37,11 @@ architecture rtl of instruction_fetch is
 	end component;
 	
 	signal PC : STD_LOGIC_VECTOR (31 DOWNTO 0);
+	signal IR_reg : std_logic_vector(31 downto 0);
+	signal NPC_reg : std_logic_vector(31 downto 0);
 	signal waitrequest_unused : STD_LOGIC;		-- ModelSim for some stupid reason has issues with open so I replaced it witha dummy signal
 	signal pc_index : INTEGER RANGE 0 TO 8191;		-- word aligned, so ignore last 2 bits
+	signal IR_mem : std_logic_vector(31 downto 0);
 	
 	begin
 
@@ -51,12 +54,13 @@ architecture rtl of instruction_fetch is
 			address => pc_index,		-- word aligned, so ignore last 2 bits
 			memwrite => '0',
 			memread => '1',
-			readdata => IR,
+			readdata => IR_mem,
 			waitrequest => waitrequest_unused							-- do not care about this port, is unconnected
 		 );
 		 
 		 -- combinatorial logic
-		 NPC <= std_logic_vector(unsigned(PC) + 4);
+		 IR <= IR_reg;
+		 NPC <= NPC_reg;
 		 
 		 -- clocked process
 		 process(clk, reset)
@@ -64,19 +68,19 @@ architecture rtl of instruction_fetch is
 			-- reset PC = 0x0
 			if(reset = '1') then
 				PC <= (others => '0');
+				IR_reg <= (others => '0');
+				NPC_reg <= (others => '0');
 				
 			-- clocked process for PC update
 			elsif rising_edge(clk) then
-				-- if not stalled, update PC
+				IR_reg <= IR_mem;
+				NPC_reg <= std_logic_vector(unsigned(PC) + 4);
 				if (stall = '0') then
-					-- PC + 4
 					if (cond = '0') then
-						PC <= NPC; --replaced here by NPC for simplicity and to avoid infinite loop of PC update since NPC is combinatorial and depends on PC
-					-- need to fetch memory from branch target
+						PC <= std_logic_vector(unsigned(PC) + 4);
 					else
 						PC <= branch_target;
 					end if;
-				-- if stalled, retain previous PC
 				end if;
 			end if;
 		 end process;
