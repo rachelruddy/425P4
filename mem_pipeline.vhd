@@ -2,7 +2,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
 
-ENTITY mem_stage IS
+ENTITY mem_pipeline IS
     PORT (
         clk : IN STD_LOGIC;
         reset : IN STD_LOGIC;
@@ -30,9 +30,9 @@ ENTITY mem_stage IS
         JumpReg_out : OUT STD_LOGIC;
         rd_out : OUT STD_LOGIC_VECTOR(4 DOWNTO 0)
     );
-END mem_stage;
+END mem_pipeline;
 
-ARCHITECTURE rtl OF mem_stage IS
+ARCHITECTURE rtl OF mem_pipeline IS
 
     COMPONENT memory IS
         GENERIC (
