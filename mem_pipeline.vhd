@@ -14,9 +14,13 @@ ENTITY mem_stage IS
 
         MemRead : IN STD_LOGIC;
         MemWrite : IN STD_LOGIC;
+		  --- this isn't really necessary, this logic is used to select between what type of memory access (byte, halfword, word, unsigned)
+		  --- instructions say we only use LW and SW, so when passing MemFunc into this component it should always be '010'- Rachel
         MemFunc : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+		  -------
         RegWrite : IN STD_LOGIC;
         MemToReg : IN STD_LOGIC;
+		  
 
         LMD_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         ALUResult_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
