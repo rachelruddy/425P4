@@ -10,8 +10,79 @@ USE ieee.numeric_std.all;
 entity processor is
 	port(
 		clk : in STD_LOGIC;
-      reset : in STD_LOGIC
+      reset : in STD_LOGIC;
+		
+		-- testing/debugging outputs (to be removed later)
+		-- outputs of IF
+	  dbg_IF_IR   : out STD_LOGIC_VECTOR(31 downto 0);
+	  dbg_IF_NPC   : out STD_LOGIC_VECTOR(31 downto 0);
+	  
+	  -- IF/ID pipeline registers
+	  dbg_IFID_IR : out STD_LOGIC_VECTOR(31 downto 0);
+	  dbg_IFID_NPC   : out STD_LOGIC_VECTOR(31 downto 0);
+	  
+	  -- outputs of ID
+	  dbg_ID_IR   : out STD_LOGIC_VECTOR(31 downto 0);
+	  dbg_ID_NPC   : out STD_LOGIC_VECTOR(31 downto 0);
+	  dbg_A : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+		dbg_B : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+		dbg_imm : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+		dbg_ALUSrc : out STD_LOGIC;
+		dbg_ALUOp : out STD_LOGIC_VECTOR(1 DOWNTO 0);
+		dbg_ALUFunc : out STD_LOGIC_VECTOR(3 DOWNTO 0);
+		dbg_Branch : out STD_LOGIC;
+		dbg_BranchType : out STD_LOGIC_VECTOR(2 DOWNTO 0);
+		dbg_Jump : out STD_LOGIC;
+		dbg_JumpReg : out STD_LOGIC;
+		dbg_MemRead : out STD_LOGIC;
+		dbg_MemWrite : out STD_LOGIC;
+		dbg_RegWrite : out STD_LOGIC;
+		dbg_MemToReg : out STD_LOGIC;
+		
+		-- ID/EX pipeline registers
+		dbg_IDEX_A : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+		dbg_IDEX_B : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+		dbg_IDEX_imm : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+		dbg_IDEX_IR   : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+		dbg_IDEX_NPC   : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+		dbg_IDEX_ALUSrc : out STD_LOGIC;
+		dbg_IDEX_ALUOp : out STD_LOGIC_VECTOR(1 DOWNTO 0);
+		dbg_IDEX_ALUFunc : out STD_LOGIC_VECTOR(3 DOWNTO 0);
+		dbg_IDEX_Branch : out STD_LOGIC;
+		dbg_IDEX_BranchType : out STD_LOGIC_VECTOR(2 DOWNTO 0);
+		dbg_IDEX_Jump : out STD_LOGIC;
+		dbg_IDEX_JumpReg : out STD_LOGIC;
+		dbg_IDEX_MemRead : out STD_LOGIC;
+		dbg_IDEX_MemWrite : out STD_LOGIC;
+		dbg_IDEX_RegWrite : out STD_LOGIC;
+		dbg_IDEX_MemToReg : out STD_LOGIC;
+		
+		-- outputs of EX
+		dbg_EX_ALUResult_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+		dbg_EX_B_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+		dbg_EX_IR_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+		dbg_EX_NPC_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+		dbg_EX_BranchTaken : OUT STD_LOGIC;
+		dbg_EX_BranchTarget : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+		dbg_EX_MemRead_out : OUT STD_LOGIC;
+		dbg_EX_MemWrite_out : OUT STD_LOGIC;
+		dbg_EX_RegWrite_out : OUT STD_LOGIC;
+		dbg_EX_MemToReg_out : OUT STD_LOGIC;
+		
+		
+		-- EX/MEM pipeline registers
+		dbg_EXMEM_ALUResult_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+		dbg_EXMEM_B_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+		dbg_EXMEM_IR_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+		dbg_EXMEM_NPC_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+		dbg_EXMEM_BranchTaken : OUT STD_LOGIC;
+		dbg_EXMEM_BranchTarget : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+		dbg_EXMEM_MemRead_out : OUT STD_LOGIC;
+		dbg_EXMEM_MemWrite_out : OUT STD_LOGIC;
+		dbg_EXMEM_RegWrite_out : OUT STD_LOGIC;
+		dbg_EXMEM_MemToReg_out : OUT STD_LOGIC
 	);
+
 end processor;
 
 architecture rtl of processor is
@@ -83,10 +154,30 @@ architecture rtl of processor is
 	-- will need an output of this stage to be the branch target address, used in IF
 	signal branch_target : STD_LOGIC_VECTOR(31 DOWNTO 0) := (others => '0');
 	
+	signal EX_ALUResult_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
+   signal EX_B_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
+   signal EX_IR_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
+   signal EX_NPC_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
+   signal EX_BranchTaken :  STD_LOGIC;
+   signal EX_BranchTarget :  STD_LOGIC_VECTOR(31 DOWNTO 0);
+   signal EX_MemRead_out :  STD_LOGIC;
+   signal EX_MemWrite_out :  STD_LOGIC;
+   signal EX_RegWrite_out :  STD_LOGIC;
+   signal EX_MemToReg_out :  STD_LOGIC;
+	
 	-----------------------------------
 	-- EXEC/MEM Pipeline registers ----
 	-----------------------------------
-	
+	signal EXMEM_ALUResult_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
+   signal EXMEM_B_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
+   signal EXMEM_IR_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
+   signal EXMEM_NPC_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
+   signal EXMEM_BranchTaken :  STD_LOGIC;
+   signal EXMEM_BranchTarget :  STD_LOGIC_VECTOR(31 DOWNTO 0);
+   signal EXMEM_MemRead_out :  STD_LOGIC;
+   signal EXMEM_MemWrite_out :  STD_LOGIC;
+   signal EXMEM_RegWrite_out :  STD_LOGIC;
+   signal EXMEM_MemToReg_out :  STD_LOGIC;
 	
 	
 	-----------------------------------
@@ -144,9 +235,121 @@ architecture rtl of processor is
 		);
 	end component;
 	
+	component execute is
+		port(
+			  clk : IN STD_LOGIC;
+			  reset : IN STD_LOGIC;
+			  A : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+			  B : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+			  Imm : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+			  IR : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+			  NPC : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+			  ALUSrc : IN STD_LOGIC;
+			  ALUFunc : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
+			  Branch : IN STD_LOGIC;
+			  BranchType : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+			  Jump : IN STD_LOGIC;
+			  JumpReg : IN STD_LOGIC;
+			  MemRead : IN STD_LOGIC;
+			  MemWrite : IN STD_LOGIC;
+			  RegWrite : IN STD_LOGIC;
+			  MemToReg : IN STD_LOGIC;  
+
+			  ALUResult_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+			  B_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+			  IR_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+			  NPC_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+			  BranchTaken : OUT STD_LOGIC;
+			  BranchTarget : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+			  MemRead_out : OUT STD_LOGIC;
+			  MemWrite_out : OUT STD_LOGIC;
+			  RegWrite_out : OUT STD_LOGIC;
+			  MemToReg_out : OUT STD_LOGIC
+		);
+	end component;
+	
 	begin
+		--testing signals
+		--outputs of IF
+		dbg_IF_IR   <= IF_IR;
+		dbg_IF_NPC   <= IF_NPC;
+		
+		-- IF/ID pipeline regs
+		dbg_IFID_IR <= IFID_IR;
+	   dbg_IFID_NPC  <= IFID_NPC;
+		
+		-- outputs of ID
+		dbg_ID_IR   <= ID_IR;
+		dbg_ID_NPC <= ID_NPC;
+		dbg_A <= ID_A;
+		dbg_B <= ID_B;
+		dbg_imm <= ID_Imm;
+		dbg_ALUSrc <= ID_ALUSrc;
+		dbg_ALUOp <= ID_ALUOp;
+		dbg_ALUFunc <= ID_ALUFunc;
+		dbg_Branch <= ID_Branch;
+		dbg_BranchType <= ID_BranchType;
+		dbg_Jump <= ID_Jump;
+		dbg_JumpReg <= ID_JumpReg;
+		dbg_MemRead <= ID_MemRead;
+		dbg_MemWrite <= ID_MemWrite;
+		dbg_RegWrite <= ID_RegWrite;
+		dbg_MemToReg <= ID_MemToReg;
+		
+		--ID/EX pipeline registers
+		dbg_IDEX_A <= IDEX_A;
+		dbg_IDEX_B <= IDEX_B;
+		dbg_IDEX_imm <= IDEX_Imm;
+		dbg_IDEX_IR   <= IDEX_IR;
+		dbg_IDEX_NPC   <= IDEX_NPC;
+		dbg_IDEX_ALUSrc <= IDEX_ALUSrc;
+		dbg_IDEX_ALUOp <= IDEX_ALUOp;
+		dbg_IDEX_ALUFunc <= IDEX_ALUFunc;
+		dbg_IDEX_Branch <= IDEX_Branch;
+		dbg_IDEX_BranchType <= IDEX_BranchType;
+		dbg_IDEX_Jump <= IDEX_Jump;
+		dbg_IDEX_JumpReg <= IDEX_JumpReg;
+		dbg_IDEX_MemRead <= IDEX_MemRead;
+		dbg_IDEX_MemWrite <= IDEX_MemWrite;
+		dbg_IDEX_RegWrite <= IDEX_RegWrite;
+		dbg_IDEX_MemToReg <= IDEX_MemToReg;
+		
+		-- outputs of EX
+		dbg_EX_ALUResult_out <= EX_ALUResult_out;
+		dbg_EX_B_out <= EX_B_out;
+		dbg_EX_IR_out <= EX_IR_out;
+		dbg_EX_NPC_out <= EX_NPC_out;
+		dbg_EX_BranchTaken <= EX_BranchTaken;
+		dbg_EX_BranchTarget <= EX_BranchTarget;
+		dbg_EX_MemRead_out <= EX_MemRead_out;
+		dbg_EX_MemWrite_out <= EX_MemWrite_out;
+		dbg_EX_RegWrite_out <= EX_RegWrite_out;
+		dbg_EX_MemToReg_out <= EX_MemToReg_out;
+
+		
+		--EX/MEM pipeline registers
+		dbg_EXMEM_ALUResult_out <= EXMEM_ALUResult_out;
+		dbg_EXMEM_B_out <= EXMEM_B_out;
+		dbg_EXMEM_IR_out <= EXMEM_IR_out;
+		dbg_EXMEM_NPC_out <= EXMEM_NPC_out;
+		dbg_EXMEM_BranchTaken <= EXMEM_BranchTaken;
+		dbg_EXMEM_BranchTarget <= EXMEM_BranchTarget;
+		dbg_EXMEM_MemRead_out <= EXMEM_MemRead_out;
+		dbg_EXMEM_MemWrite_out <= EXMEM_MemWrite_out;
+		dbg_EXMEM_RegWrite_out <= EXMEM_RegWrite_out;
+		dbg_EXMEM_MemToReg_out <= EXMEM_MemToReg_out;
+		
+
 		-- pipeline stage instantiations
-		IF_stage : instruction_fetch port map(clk => clk, reset => reset, cond => cond, branch_target => branch_target, stall => stall, IR => IF_IR, NPC => IF_NPC);
+		IF_stage : instruction_fetch port map(
+			clk => clk, 
+			reset => reset, 
+			cond => cond, 
+			branch_target => branch_target, 
+			stall => stall, 
+			IR => IF_IR, 
+			NPC => IF_NPC
+		);
 		ID_stage : instruction_decode port map(
 			clk => clk,
 			reset => reset,
@@ -169,7 +372,42 @@ architecture rtl of processor is
 			RegWrite => ID_RegWrite,
 			MemToReg => ID_MemToReg
 		);
+		EX_stage : execute port map(
+			 clk => clk,
+			 reset => reset,
+			 A => IDEX_A,
+			 B => IDEX_B,
+			 Imm => IDEX_Imm,
+			 IR => IDEX_IR,
+			 NPC => IDEX_NPC,
+
+			 ALUSrc => IDEX_ALUSrc,
+			 ALUFunc => IDEX_ALUFunc,
+
+			 Branch => IDEX_Branch,
+			 BranchType => IDEX_BranchType,
+			 Jump => IDEX_Jump,
+			 JumpReg => IDEX_JumpReg,
+
+			 MemRead => IDEX_MemRead,
+			 MemWrite => IDEX_MemWrite,
+			 RegWrite => IDEX_RegWrite,
+			 MemToReg => IDEX_MemToReg,
+
+			 ALUResult_out => EX_ALUResult_out,
+			 B_out => EX_B_out,
+			 IR_out => EX_IR_out,
+			 NPC_out => EX_NPC_out,
+			 BranchTaken => EX_BranchTaken,
+			 BranchTarget => EX_BranchTarget,
+
+			 MemRead_out => EX_MemRead_out,
+			 MemWrite_out => EX_MemWrite_out,
+			 RegWrite_out => EX_RegWrite_out,
+			 MemToReg_out => EX_MemToReg_out
+		);
 		
+		-- FETCH
 		process(clk, reset)
 		begin
 			if reset = '1' then
@@ -193,6 +431,7 @@ architecture rtl of processor is
 			end if;
 		end process;
 
+		-- DECODE
 		process(clk, reset)
 		begin
 			if reset = '1' then
@@ -275,6 +514,67 @@ architecture rtl of processor is
 					IDEX_MemWrite <= ID_MemWrite;
 					IDEX_RegWrite <= ID_RegWrite;
 					IDEX_MemToReg <= ID_MemToReg;
+				end if;
+			end if;
+		end process;
+		
+		--EXECUTE
+		process(clk, reset)
+		begin
+			if reset = '1' then
+				-- reset EX/MEM pipeline registers
+				  EXMEM_ALUResult_out <= (others => '0');
+				  EXMEM_B_out <= (others => '0');
+				  EXMEM_IR_out <= (others => '0');
+				  EXMEM_NPC_out <= (others => '0');
+				  EXMEM_BranchTaken <= '0';
+				  EXMEM_BranchTarget <= (others => '0');
+				  EXMEM_MemRead_out <= '0';
+				  EXMEM_MemWrite_out <= '0';
+				  EXMEM_RegWrite_out <= '0';
+				  EXMEM_MemToReg_out <= '0';
+
+			elsif rising_edge(clk) then
+				if stall = '1' then
+					-- hold EX/MEM state on stall
+					EXMEM_ALUResult_out <= EXMEM_ALUResult_out;
+					EXMEM_B_out <= EXMEM_B_out;
+					EXMEM_IR_out <= EXMEM_IR_out;
+					EXMEM_NPC_out <= EXMEM_NPC_out;
+					EXMEM_BranchTaken <= EXMEM_BranchTaken;
+					EXMEM_BranchTarget <= EXMEM_BranchTarget;
+					EXMEM_MemRead_out <= EXMEM_MemRead_out;
+					EXMEM_MemWrite_out <= EXMEM_MemWrite_out;
+					EXMEM_RegWrite_out <= EXMEM_RegWrite_out;
+					EXMEM_MemToReg_out <= EXMEM_MemToReg_out;
+
+				-- need to check if this will flush the current instruction in execute
+				elsif cond = '1' then
+					-- flush exec output on taken branch (inject bubble)
+					EXMEM_ALUResult_out <= (others => '0');
+					EXMEM_B_out <= (others => '0');
+					EXMEM_IR_out <= (others => '0');
+					EXMEM_NPC_out <= (others => '0');
+					EXMEM_BranchTaken <= '0';
+					EXMEM_BranchTarget <= (others => '0');
+					EXMEM_MemRead_out <= '0';
+					EXMEM_MemWrite_out <= '0';
+					EXMEM_RegWrite_out <= '0';
+					EXMEM_MemToReg_out <= '0';
+
+				else
+					-- latch exec outputs into EX/MEM pipeline registers
+					EXMEM_ALUResult_out <= EX_ALUResult_out;
+					EXMEM_B_out <= EX_B_out;
+					EXMEM_IR_out <= EX_IR_out;
+					EXMEM_NPC_out <= EX_NPC_out;
+					EXMEM_BranchTaken <= EX_BranchTaken;
+					EXMEM_BranchTarget <= EX_BranchTarget;
+					EXMEM_MemRead_out <= EX_MemRead_out;
+					EXMEM_MemWrite_out <= EX_MemWrite_out;
+					EXMEM_RegWrite_out <= EX_RegWrite_out;
+					EXMEM_MemToReg_out <= EX_MemToReg_out;
+					
 				end if;
 			end if;
 		end process;

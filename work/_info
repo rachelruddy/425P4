@@ -1,0 +1,575 @@
+m255
+K4
+z2
+!s11e vcom 2020.1 2020.02, Feb 28 2020
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+dC:/Users/14382/Downloads/ECSE 425/P3/425p3
+Ealu
+Z0 w1775513782
+Z1 DPx4 ieee 11 numeric_std 0 22 aU^R8eGcicLcUFIaBQSL>3
+Z2 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
+Z3 DPx4 ieee 14 std_logic_1164 0 22 cVAk:aDinOX8^VGI1ekP<3
+!i122 9
+Z4 dC:/Users/14382/Downloads/ECSE 425/P4/425P4
+Z5 8C:/Users/14382/Downloads/ECSE 425/P4/425P4/ALU.vhd
+Z6 FC:/Users/14382/Downloads/ECSE 425/P4/425P4/ALU.vhd
+l0
+L5 1
+VYE2aUSfI]<kJbl5[8MzB<2
+!s100 iQ>T7Ch<V][izPHY0ZAoo1
+Z7 OV;C;2020.1;71
+32
+Z8 !s110 1775860165
+!i10b 1
+Z9 !s108 1775860165.000000
+Z10 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/14382/Downloads/ECSE 425/P4/425P4/ALU.vhd|
+Z11 !s107 C:/Users/14382/Downloads/ECSE 425/P4/425P4/ALU.vhd|
+!i113 1
+Z12 o-work work -2002 -explicit
+Z13 tExplicit 1 CvgOpt 0
+Artl
+R1
+R2
+R3
+DEx4 work 3 alu 0 22 YE2aUSfI]<kJbl5[8MzB<2
+!i122 9
+l24
+L17 71
+V4mk7V_9MbK`2IFa[W[RY00
+!s100 Bn;<13B=QE=I^U?72;G143
+R7
+32
+R8
+!i10b 1
+R9
+R10
+R11
+!i113 1
+R12
+R13
+Ealu_tb
+Z14 w1775858397
+R1
+R2
+R3
+!i122 14
+R4
+Z15 8alu_tb.vhd
+Z16 Falu_tb.vhd
+l0
+Z17 L10 1
+VSdoKn;M]PX80F94HV9BlG0
+!s100 c1Hllf4T2oI7jcVbJNnDL3
+R7
+33
+Z18 !s110 1775860395
+!i10b 1
+Z19 !s108 1775860395.000000
+Z20 !s90 -reportprogress|300|-2008|alu_tb.vhd|
+Z21 !s107 alu_tb.vhd|
+!i113 1
+Z22 o-2008
+R13
+Abehavioral
+R1
+R2
+R3
+DEx4 work 6 alu_tb 0 22 SdoKn;M]PX80F94HV9BlG0
+!i122 14
+l38
+L14 388
+VzfkN`]>LNaa?98^@2]n322
+!s100 ^1bjD11SaK3V<lCa=GT5b2
+R7
+33
+R18
+!i10b 1
+R19
+R20
+R21
+!i113 1
+R22
+R13
+Eexecute
+Z23 w1775860036
+R1
+R2
+R3
+!i122 0
+R4
+Z24 8C:/Users/14382/Downloads/ECSE 425/P4/425P4/execute.vhd
+Z25 FC:/Users/14382/Downloads/ECSE 425/P4/425P4/execute.vhd
+l0
+L5 1
+VohCj>X05j[XSCJ>WJEO<k0
+!s100 ZbhoZoe8MMh;AzlAn7aG53
+R7
+32
+Z26 !s110 1775860164
+!i10b 1
+Z27 !s108 1775860164.000000
+Z28 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/14382/Downloads/ECSE 425/P4/425P4/execute.vhd|
+Z29 !s107 C:/Users/14382/Downloads/ECSE 425/P4/425P4/execute.vhd|
+!i113 1
+R12
+R13
+Artl
+R1
+R2
+R3
+DEx4 work 7 execute 0 22 ohCj>X05j[XSCJ>WJEO<k0
+!i122 0
+l78
+L40 130
+VRFQZgQ__VgO?]<O2L`IF]1
+!s100 _56SFE6;cVZGa1i_PjD`n0
+R7
+32
+R26
+!i10b 1
+R27
+R28
+R29
+!i113 1
+R12
+R13
+Eid_tb
+R14
+R1
+R2
+R3
+!i122 15
+R4
+Z30 8id_tb.vhd
+Z31 Fid_tb.vhd
+l0
+L9 1
+VJefWe:;Zk`M5baM29[]>82
+!s100 a1okL::2E9ezcz0b;o6EJ0
+R7
+33
+Z32 !s110 1775860406
+!i10b 1
+Z33 !s108 1775860406.000000
+Z34 !s90 -reportprogress|300|-2008|id_tb.vhd|
+Z35 !s107 id_tb.vhd|
+!i113 1
+R22
+R13
+Abehavior
+R1
+R2
+R3
+DEx4 work 5 id_tb 0 22 JefWe:;Zk`M5baM29[]>82
+!i122 15
+l67
+L12 2282
+V5oDi<hiTF;ajWCe3LP8Ic0
+!s100 6F7Nz=aGHR_c=TC16U[[^1
+R7
+33
+R32
+!i10b 1
+R33
+R34
+R35
+!i113 1
+R22
+R13
+Eif_tb
+R14
+R1
+R2
+R3
+!i122 16
+R4
+Z36 8if_tb.vhd
+Z37 Fif_tb.vhd
+l0
+R17
+VO351^34D_Nl6o9Kaj7@m]3
+!s100 AYzL]>^oJ1<TjYEeYSAAB0
+R7
+33
+Z38 !s110 1775860412
+!i10b 1
+Z39 !s108 1775860412.000000
+Z40 !s90 -reportprogress|300|-2008|if_tb.vhd|
+!s107 if_tb.vhd|
+!i113 1
+R22
+R13
+Abehavior
+R1
+R2
+R3
+DEx4 work 5 if_tb 0 22 O351^34D_Nl6o9Kaj7@m]3
+!i122 16
+l41
+L14 273
+V;g9@zoVIJbP^>cL3_W;3a2
+!s100 MoaeK=I?KbR]f^4SOhTl03
+R7
+33
+R38
+!i10b 1
+R39
+R40
+Z41 !s107 if_tb.vhd|
+!i113 1
+R22
+R13
+Einstruction_decode
+R0
+R1
+R2
+R3
+!i122 10
+R4
+8C:/Users/14382/Downloads/ECSE 425/P4/425P4/instruction_decode.vhd
+FC:/Users/14382/Downloads/ECSE 425/P4/425P4/instruction_decode.vhd
+l0
+L5 1
+V;8zAj1]V8_UDAZ;7:=[<E1
+!s100 lX?3>4@ICPLzcjcZ::cAi0
+R7
+32
+R8
+!i10b 1
+R9
+!s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/14382/Downloads/ECSE 425/P4/425P4/instruction_decode.vhd|
+!s107 C:/Users/14382/Downloads/ECSE 425/P4/425P4/instruction_decode.vhd|
+!i113 1
+R12
+R13
+Einstruction_fetch
+R14
+R1
+R2
+R3
+!i122 6
+R4
+8C:/Users/14382/Downloads/ECSE 425/P4/425P4/instruction_fetch.vhd
+FC:/Users/14382/Downloads/ECSE 425/P4/425P4/instruction_fetch.vhd
+l0
+L7 1
+V>]1J?O3WU=;;WLiL54bNN2
+!s100 05nDaGP6Qone>FVc7oC@32
+R7
+32
+R8
+!i10b 1
+R9
+!s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/14382/Downloads/ECSE 425/P4/425P4/instruction_fetch.vhd|
+!s107 C:/Users/14382/Downloads/ECSE 425/P4/425P4/instruction_fetch.vhd|
+!i113 1
+R12
+R13
+Emem_stage
+Z42 w1775860031
+R1
+R2
+R3
+!i122 2
+R4
+Z43 8C:/Users/14382/Downloads/ECSE 425/P4/425P4/mem_pipeline.vhd
+Z44 FC:/Users/14382/Downloads/ECSE 425/P4/425P4/mem_pipeline.vhd
+l0
+L5 1
+VcP0We986CYUkY@7jSNKLk0
+!s100 Y5OVaQMKizA<gMISXHU890
+R7
+32
+R26
+!i10b 1
+R27
+Z45 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/14382/Downloads/ECSE 425/P4/425P4/mem_pipeline.vhd|
+Z46 !s107 C:/Users/14382/Downloads/ECSE 425/P4/425P4/mem_pipeline.vhd|
+!i113 1
+R12
+R13
+Artl
+R1
+R2
+R3
+DEx4 work 9 mem_stage 0 22 cP0We986CYUkY@7jSNKLk0
+!i122 2
+l67
+L30 169
+V10RjUi8LVAkLikWL?XWB@0
+!s100 Z6U::jzkF`KTfz@XHF^jk2
+R7
+32
+R26
+!i10b 1
+R27
+R45
+R46
+!i113 1
+R12
+R13
+Ememory
+Z47 w1775860034
+R1
+R2
+R3
+!i122 1
+R4
+Z48 8C:/Users/14382/Downloads/ECSE 425/P4/425P4/memory.vhd
+Z49 FC:/Users/14382/Downloads/ECSE 425/P4/425P4/memory.vhd
+l0
+L11 1
+V:DHkim74Ohiog?A8KYPG;3
+!s100 XV@<jCZMc`cXn^YmHh<6I0
+R7
+32
+R26
+!i10b 1
+R27
+Z50 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/14382/Downloads/ECSE 425/P4/425P4/memory.vhd|
+Z51 !s107 C:/Users/14382/Downloads/ECSE 425/P4/425P4/memory.vhd|
+!i113 1
+R12
+R13
+Artl
+R1
+R2
+R3
+DEx4 work 6 memory 0 22 :DHkim74Ohiog?A8KYPG;3
+!i122 1
+l45
+L34 59
+V=O669lS<]7;88Kh]J`k:O3
+!s100 R9Dka^BfjgVXPoS8:Q0`[0
+R7
+32
+R26
+!i10b 1
+R27
+R50
+R51
+!i113 1
+R12
+R13
+Eprocessor
+R0
+R1
+R2
+R3
+!i122 11
+R4
+Z52 8C:/Users/14382/Downloads/ECSE 425/P4/425P4/processor.vhd
+Z53 FC:/Users/14382/Downloads/ECSE 425/P4/425P4/processor.vhd
+l0
+R17
+VUPic3X:04mO87ze=g6fDz0
+!s100 7gQWCPGnCdablU817J@JI3
+R7
+32
+R8
+!i10b 1
+R9
+Z54 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/14382/Downloads/ECSE 425/P4/425P4/processor.vhd|
+Z55 !s107 C:/Users/14382/Downloads/ECSE 425/P4/425P4/processor.vhd|
+!i113 1
+R12
+R13
+Artl
+R1
+R2
+R3
+DEx4 work 9 processor 0 22 UPic3X:04mO87ze=g6fDz0
+!i122 11
+l147
+L17 265
+VA94O3]0mdA?ZIX206l^ln1
+!s100 HL7BUFida]kQO94iVY4f]3
+R7
+32
+R8
+!i10b 1
+R9
+R54
+R55
+!i113 1
+R12
+R13
+Eprocessor_tb
+R0
+Z56 DPx4 ieee 16 std_logic_textio 0 22 ^l:n6VFdg74Q?CKDhjD]D3
+R1
+R2
+R3
+!i122 12
+R4
+Z57 8C:/Users/14382/Downloads/ECSE 425/P4/425P4/processor_tb.vhd
+Z58 FC:/Users/14382/Downloads/ECSE 425/P4/425P4/processor_tb.vhd
+l0
+L23 1
+V<B?d1Ymab6mR^@Kd3_Pj:0
+!s100 ]1z?[1>kR=KbefBU9NjK10
+R7
+32
+R8
+!i10b 1
+R9
+Z59 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/14382/Downloads/ECSE 425/P4/425P4/processor_tb.vhd|
+Z60 !s107 C:/Users/14382/Downloads/ECSE 425/P4/425P4/processor_tb.vhd|
+!i113 1
+R12
+R13
+Abehavior
+R56
+R1
+R2
+R3
+DEx4 work 12 processor_tb 0 22 <B?d1Ymab6mR^@Kd3_Pj:0
+!i122 12
+l98
+L26 255
+VG=H6;FWlAYJ^j]7BTTnR83
+!s100 G@A9o6mj=4zbMd]@KHiM?2
+R7
+32
+R8
+!i10b 1
+R9
+R59
+R60
+!i113 1
+R12
+R13
+Eregister_file
+R0
+R1
+R2
+R3
+!i122 13
+R4
+Z61 8C:/Users/14382/Downloads/ECSE 425/P4/425P4/register_file.vhd
+Z62 FC:/Users/14382/Downloads/ECSE 425/P4/425P4/register_file.vhd
+l0
+L5 1
+Vm7iVg[C>KmoLNibzMXd[k0
+!s100 ahFDAU7_26MznET1UgHoJ1
+R7
+32
+R8
+!i10b 1
+R9
+Z63 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/14382/Downloads/ECSE 425/P4/425P4/register_file.vhd|
+Z64 !s107 C:/Users/14382/Downloads/ECSE 425/P4/425P4/register_file.vhd|
+!i113 1
+R12
+R13
+Artl
+R1
+R2
+R3
+DEx4 work 13 register_file 0 22 m7iVg[C>KmoLNibzMXd[k0
+!i122 13
+l13
+L12 3
+VHQVCXB`[4klPDj^AH]g0b1
+!s100 Hi<HF1YFQkBKIoD0N0Mk]1
+R7
+32
+R8
+!i10b 1
+R9
+R63
+R64
+!i113 1
+R12
+R13
+Ewb_tb
+R14
+R1
+R2
+R3
+!i122 7
+R4
+Z65 8C:/Users/14382/Downloads/ECSE 425/P4/425P4/wb_tb.vhd
+Z66 FC:/Users/14382/Downloads/ECSE 425/P4/425P4/wb_tb.vhd
+l0
+R17
+V7ji5D2j91NQ^:OcGhlVPU1
+!s100 [T5ZWgh[dQ;2C4OODG<_l2
+R7
+32
+R8
+!i10b 1
+R9
+Z67 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/14382/Downloads/ECSE 425/P4/425P4/wb_tb.vhd|
+Z68 !s107 C:/Users/14382/Downloads/ECSE 425/P4/425P4/wb_tb.vhd|
+!i113 1
+R12
+R13
+Abehavior
+R1
+R2
+R3
+DEx4 work 5 wb_tb 0 22 7ji5D2j91NQ^:OcGhlVPU1
+!i122 7
+l56
+L14 416
+VmoDRIZCmENDZl;NXCN7770
+!s100 j7`69ofLjKTYURK@_3o1>0
+R7
+32
+R8
+!i10b 1
+R9
+R67
+R68
+!i113 1
+R12
+R13
+Ewriteback
+R14
+R1
+R2
+R3
+!i122 8
+R4
+Z69 8C:/Users/14382/Downloads/ECSE 425/P4/425P4/writeback.vhd
+Z70 FC:/Users/14382/Downloads/ECSE 425/P4/425P4/writeback.vhd
+l0
+L7 1
+Vb8:@gFJ@oObd?`@Y<^fLk0
+!s100 0H;APnmK_z9lSWVUVklWH0
+R7
+32
+R8
+!i10b 1
+R9
+Z71 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/14382/Downloads/ECSE 425/P4/425P4/writeback.vhd|
+Z72 !s107 C:/Users/14382/Downloads/ECSE 425/P4/425P4/writeback.vhd|
+!i113 1
+R12
+R13
+Artl
+R1
+R2
+R3
+DEx4 work 9 writeback 0 22 b8:@gFJ@oObd?`@Y<^fLk0
+!i122 8
+l32
+L27 35
+VimR1PEhJ5CjR`Ii?MY2P@2
+!s100 2B`K_SK02Ye7g[77S@So[0
+R7
+32
+R8
+!i10b 1
+R9
+R71
+R72
+!i113 1
+R12
+R13
