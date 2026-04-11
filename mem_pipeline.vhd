@@ -51,64 +51,71 @@ ARCHITECTURE rtl OF mem_stage IS
         );
     END COMPONENT;
 
-    SIGNAL word_addr : INTEGER RANGE 0 TO 8191;
-    SIGNAL byte_offset : INTEGER RANGE 0 TO 3;
+    -- address inside memory
+    SIGNAL word_address : INTEGER RANGE 0 TO 8191;
 
-    SIGNAL mem_writedata : STD_LOGIC_VECTOR(31 DOWNTO 0);
-    SIGNAL mem_readdata : STD_LOGIC_VECTOR(31 DOWNTO 0);
-    SIGNAL mem_waitreq : STD_LOGIC;
+    -- which byte inside the 32-bit word (0 to 3)
+    SIGNAL byte_select : INTEGER RANGE 0 TO 3;
 
-    SIGNAL raw_word : STD_LOGIC_VECTOR(31 DOWNTO 0);
-    SIGNAL load_data : STD_LOGIC_VECTOR(31 DOWNTO 0);
-    SIGNAL write_word : STD_LOGIC_VECTOR(31 DOWNTO 0);
+    SIGNAL data_to_memory : STD_LOGIC_VECTOR(31 DOWNTO 0);
+    SIGNAL data_from_memory : STD_LOGIC_VECTOR(31 DOWNTO 0);
+    SIGNAL memory_wait : STD_LOGIC;
 
-    SIGNAL funct3 : STD_LOGIC_VECTOR(2 DOWNTO 0);
-    SIGNAL rd : STD_LOGIC_VECTOR(4 DOWNTO 0);
+    SIGNAL current_word : STD_LOGIC_VECTOR(31 DOWNTO 0);
+    SIGNAL loaded_value : STD_LOGIC_VECTOR(31 DOWNTO 0);
+    SIGNAL store_value : STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+    SIGNAL instruction_type : STD_LOGIC_VECTOR(2 DOWNTO 0);
+    SIGNAL destination_reg : STD_LOGIC_VECTOR(4 DOWNTO 0);
 
 BEGIN
 
-    funct3 <= IR(14 DOWNTO 12);
-    rd <= IR(11 DOWNTO 7);
+    instruction_type <= IR(14 DOWNTO 12);
+    destination_reg <= IR(11 DOWNTO 7);
 
-    word_addr <= to_integer(unsigned(ALUResult(14 DOWNTO 2)));
-    byte_offset <= to_integer(unsigned(ALUResult(1 DOWNTO 0)));
+    word_address <= to_integer(unsigned(ALUResult(14 DOWNTO 2)));
+    byte_select <= to_integer(unsigned(ALUResult(1 DOWNTO 0)));
 
-    raw_word <= mem_readdata;
+    current_word <= data_from_memory;
 
-    PROCESS (MemWrite, funct3, byte_offset, B, raw_word)
+    PROCESS (MemWrite, instruction_type, byte_select, B, current_word)
     BEGIN
-        write_word <= B;
+        store_value <= B;
 
         IF MemWrite = '1' THEN
-            CASE funct3 IS
+            CASE instruction_type IS
+
                 WHEN "000" =>
-                    write_word <= raw_word;
-                    CASE byte_offset IS
-                        WHEN 0 => write_word(7 DOWNTO 0) <= B(7 DOWNTO 0);
-                        WHEN 1 => write_word(15 DOWNTO 8) <= B(7 DOWNTO 0);
-                        WHEN 2 => write_word(23 DOWNTO 16) <= B(7 DOWNTO 0);
-                        WHEN 3 => write_word(31 DOWNTO 24) <= B(7 DOWNTO 0);
+                    store_value <= current_word;
+
+                    CASE byte_select IS
+                        WHEN 0 => store_value(7 DOWNTO 0) <= B(7 DOWNTO 0);
+                        WHEN 1 => store_value(15 DOWNTO 8) <= B(7 DOWNTO 0);
+                        WHEN 2 => store_value(23 DOWNTO 16) <= B(7 DOWNTO 0);
+                        WHEN 3 => store_value(31 DOWNTO 24) <= B(7 DOWNTO 0);
                         WHEN OTHERS => NULL;
                     END CASE;
 
                 WHEN "001" =>
-                    write_word <= raw_word;
-                    CASE byte_offset IS
-                        WHEN 0 => write_word(15 DOWNTO 0) <= B(15 DOWNTO 0);
-                        WHEN 2 => write_word(31 DOWNTO 16) <= B(15 DOWNTO 0);
+                    store_value <= current_word;
+
+                    CASE byte_select IS
+                        WHEN 0 => store_value(15 DOWNTO 0) <= B(15 DOWNTO 0);
+                        WHEN 2 => store_value(31 DOWNTO 16) <= B(15 DOWNTO 0);
                         WHEN OTHERS => NULL;
                     END CASE;
 
                 WHEN "010" =>
-                    write_word <= B;
+                    store_value <= B;
 
                 WHEN OTHERS =>
-                    write_word <= B;
+                    store_value <= B;
+
             END CASE;
         END IF;
     END PROCESS;
 
-    mem_writedata <= write_word;
+    data_to_memory <= store_value;
 
     data_mem : memory
     GENERIC MAP(
@@ -118,65 +125,71 @@ BEGIN
     )
     PORT MAP(
         clock => clk,
-        writedata => mem_writedata,
-        address => word_addr,
+        writedata => data_to_memory,
+        address => word_address,
         memwrite => MemWrite,
         memread => MemRead,
-        readdata => mem_readdata,
-        waitrequest => mem_waitreq
+        readdata => data_from_memory,
+        waitrequest => memory_wait
     );
 
-    PROCESS (MemRead, funct3, byte_offset, mem_readdata)
-        VARIABLE byte_val : STD_LOGIC_VECTOR(7 DOWNTO 0);
-        VARIABLE half_val : STD_LOGIC_VECTOR(15 DOWNTO 0);
+    PROCESS (MemRead, instruction_type, byte_select, data_from_memory)
+        VARIABLE byte_data : STD_LOGIC_VECTOR(7 DOWNTO 0);
+        VARIABLE half_data : STD_LOGIC_VECTOR(15 DOWNTO 0);
     BEGIN
-        load_data <= (OTHERS => '0');
-        byte_val := (OTHERS => '0');
-        half_val := (OTHERS => '0');
+        loaded_value <= (OTHERS => '0');
+        byte_data := (OTHERS => '0');
+        half_data := (OTHERS => '0');
 
         IF MemRead = '1' THEN
-            CASE funct3 IS
+            CASE instruction_type IS
+
                 WHEN "000" =>
-                    CASE byte_offset IS
-                        WHEN 0 => byte_val := mem_readdata(7 DOWNTO 0);
-                        WHEN 1 => byte_val := mem_readdata(15 DOWNTO 8);
-                        WHEN 2 => byte_val := mem_readdata(23 DOWNTO 16);
-                        WHEN 3 => byte_val := mem_readdata(31 DOWNTO 24);
+                    CASE byte_select IS
+                        WHEN 0 => byte_data := data_from_memory(7 DOWNTO 0);
+                        WHEN 1 => byte_data := data_from_memory(15 DOWNTO 8);
+                        WHEN 2 => byte_data := data_from_memory(23 DOWNTO 16);
+                        WHEN 3 => byte_data := data_from_memory(31 DOWNTO 24);
                         WHEN OTHERS => NULL;
                     END CASE;
-                    load_data <= STD_LOGIC_VECTOR(resize(signed(byte_val), 32));
+
+                    loaded_value <= STD_LOGIC_VECTOR(resize(signed(byte_data), 32));
 
                 WHEN "001" =>
-                    CASE byte_offset IS
-                        WHEN 0 => half_val := mem_readdata(15 DOWNTO 0);
-                        WHEN 2 => half_val := mem_readdata(31 DOWNTO 16);
+                    CASE byte_select IS
+                        WHEN 0 => half_data := data_from_memory(15 DOWNTO 0);
+                        WHEN 2 => half_data := data_from_memory(31 DOWNTO 16);
                         WHEN OTHERS => NULL;
                     END CASE;
-                    load_data <= STD_LOGIC_VECTOR(resize(signed(half_val), 32));
+
+                    loaded_value <= STD_LOGIC_VECTOR(resize(signed(half_data), 32));
 
                 WHEN "010" =>
-                    load_data <= mem_readdata;
+                    loaded_value <= data_from_memory;
 
                 WHEN "100" =>
-                    CASE byte_offset IS
-                        WHEN 0 => byte_val := mem_readdata(7 DOWNTO 0);
-                        WHEN 1 => byte_val := mem_readdata(15 DOWNTO 8);
-                        WHEN 2 => byte_val := mem_readdata(23 DOWNTO 16);
-                        WHEN 3 => byte_val := mem_readdata(31 DOWNTO 24);
+                    CASE byte_select IS
+                        WHEN 0 => byte_data := data_from_memory(7 DOWNTO 0);
+                        WHEN 1 => byte_data := data_from_memory(15 DOWNTO 8);
+                        WHEN 2 => byte_data := data_from_memory(23 DOWNTO 16);
+                        WHEN 3 => byte_data := data_from_memory(31 DOWNTO 24);
                         WHEN OTHERS => NULL;
                     END CASE;
-                    load_data <= STD_LOGIC_VECTOR(resize(unsigned(byte_val), 32));
+
+                    loaded_value <= STD_LOGIC_VECTOR(resize(unsigned(byte_data), 32));
 
                 WHEN "101" =>
-                    CASE byte_offset IS
-                        WHEN 0 => half_val := mem_readdata(15 DOWNTO 0);
-                        WHEN 2 => half_val := mem_readdata(31 DOWNTO 16);
+                    CASE byte_select IS
+                        WHEN 0 => half_data := data_from_memory(15 DOWNTO 0);
+                        WHEN 2 => half_data := data_from_memory(31 DOWNTO 16);
                         WHEN OTHERS => NULL;
                     END CASE;
-                    load_data <= STD_LOGIC_VECTOR(resize(unsigned(half_val), 32));
+
+                    loaded_value <= STD_LOGIC_VECTOR(resize(unsigned(half_data), 32));
 
                 WHEN OTHERS =>
-                    load_data <= mem_readdata;
+                    loaded_value <= data_from_memory;
+
             END CASE;
         END IF;
     END PROCESS;
@@ -196,14 +209,14 @@ BEGIN
 
         ELSIF rising_edge(clk) THEN
             ALUOutput <= ALUResult;
-            LMD <= load_data;
+            LMD <= loaded_value;
             IR_out <= IR;
             NPC_out <= NPC;
             RegWrite_out <= RegWrite;
             MemToReg_out <= MemToReg;
             Jump_out <= Jump;
             JumpReg_out <= JumpReg;
-            rd_out <= rd;
+            rd_out <= destination_reg;
         END IF;
     END PROCESS;
 
