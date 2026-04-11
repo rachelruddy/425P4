@@ -58,6 +58,8 @@ architecture tb of integration_if_id_tb is
 
 begin
 
+	
+
     uut: processor
     port map (
         clk => clk,
