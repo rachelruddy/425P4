@@ -8,6 +8,9 @@ entity instruction_decode is
         reset : in STD_LOGIC;
         IR : in STD_LOGIC_VECTOR(31 DOWNTO 0);					-- instruction from IF/ID.IR
         NPC : in STD_LOGIC_VECTOR(31 DOWNTO 0);				-- next PC from IF/ID.NPC
+        -- gets register values passed in now (from register_dile.vhd)
+        A_in : in STD_LOGIC_VECTOR(31 DOWNTO 0) := (others => '0');
+        B_in : in STD_LOGIC_VECTOR(31 DOWNTO 0) := (others => '0');
 
         A : out STD_LOGIC_VECTOR(31 DOWNTO 0);					-- register operand A = Regs[rs1]
         B : out STD_LOGIC_VECTOR(31 DOWNTO 0);					-- register operand B = Regs[rs2]
@@ -31,16 +34,10 @@ entity instruction_decode is
 end instruction_decode;
 
 architecture rtl of instruction_decode is
-    -- local register file storage (32 regs x 32-bit)
-    type reg_file_t is array (0 to 31) of STD_LOGIC_VECTOR(31 DOWNTO 0);
-    signal regs : reg_file_t := (others => (others => '0'));
-
     -- extracted instruction fields
     signal opcode : STD_LOGIC_VECTOR(6 DOWNTO 0);
     signal funct3 : STD_LOGIC_VECTOR(2 DOWNTO 0);
     signal funct7 : STD_LOGIC_VECTOR(6 DOWNTO 0);
-    signal rs1 : INTEGER RANGE 0 TO 31;
-    signal rs2 : INTEGER RANGE 0 TO 31;
     signal imm_i : STD_LOGIC_VECTOR(31 DOWNTO 0);
     signal imm_s : STD_LOGIC_VECTOR(31 DOWNTO 0);
     signal imm_b : STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -51,8 +48,6 @@ begin
     opcode <= IR(6 DOWNTO 0);
     funct3 <= IR(14 DOWNTO 12);
     funct7 <= IR(31 DOWNTO 25);
-    rs1 <= to_integer(unsigned(IR(19 DOWNTO 15)));
-    rs2 <= to_integer(unsigned(IR(24 DOWNTO 20)));
 
     -- immediate generation by RV32I format
     -- !! not sure if im doing the extension properly... sign extend vs zero extend?
@@ -63,8 +58,8 @@ begin
     imm_j <= std_logic_vector(resize(signed(IR(31) & IR(19 DOWNTO 12) & IR(20) & IR(30 DOWNTO 21) & '0'), 32));
 
     -- register file reads and pass-through values
-    A <= regs(rs1);
-    B <= regs(rs2);
+    A <= A_in;
+    B <= B_in;
     IR_out <= IR;
     NPC_out <= NPC;
 

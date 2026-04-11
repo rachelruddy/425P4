@@ -56,6 +56,11 @@ architecture rtl of processor is
 	-----------------------------------
 	-- STAGE 2: ID --------------------
 	-----------------------------------
+	signal ID_rs1_addr : STD_LOGIC_VECTOR(4 DOWNTO 0);
+	signal ID_rs2_addr : STD_LOGIC_VECTOR(4 DOWNTO 0);
+	signal RF_rs1_data : STD_LOGIC_VECTOR(31 DOWNTO 0);
+	signal RF_rs2_data : STD_LOGIC_VECTOR(31 DOWNTO 0);
+
 	signal ID_A : STD_LOGIC_VECTOR(31 DOWNTO 0);
 	signal ID_B : STD_LOGIC_VECTOR(31 DOWNTO 0);
 	signal ID_Imm : STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -124,6 +129,9 @@ architecture rtl of processor is
 	-----------------------------------
 	-- STAGE 5: WB --------------------
 	-----------------------------------
+	signal WB_regfile_write_en : STD_LOGIC := '0';
+	signal WB_regfile_write_addr : STD_LOGIC_VECTOR(4 DOWNTO 0) := (others => '0');
+	signal WB_regfile_write_data : STD_LOGIC_VECTOR(31 DOWNTO 0) := (others => '0');
 
 
 	
@@ -145,6 +153,8 @@ architecture rtl of processor is
 			reset : in STD_LOGIC;
 			IR : in STD_LOGIC_VECTOR(31 DOWNTO 0);
 			NPC : in STD_LOGIC_VECTOR(31 DOWNTO 0);
+			A_in : in STD_LOGIC_VECTOR(31 DOWNTO 0);
+			B_in : in STD_LOGIC_VECTOR(31 DOWNTO 0);
 
 			A : out STD_LOGIC_VECTOR(31 DOWNTO 0);
 			B : out STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -165,8 +175,27 @@ architecture rtl of processor is
 			MemToReg : out STD_LOGIC
 		);
 	end component;
+
+	component register_file is
+		port(
+			clk : in STD_LOGIC;
+			reset : in STD_LOGIC;
+			rs1_addr : in STD_LOGIC_VECTOR(4 DOWNTO 0);
+			rs2_addr : in STD_LOGIC_VECTOR(4 DOWNTO 0);
+			rs1_data : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+			rs2_data : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+			write_enable : in STD_LOGIC;
+			write_addr : in STD_LOGIC_VECTOR(4 DOWNTO 0);
+			write_data : in STD_LOGIC_VECTOR(31 DOWNTO 0)
+		);
+	end component;
 	
 	begin
+		-- rf read addresses come directly from the instruction currently in IF/ID
+		-- combinatorial outside of clocked process so it can be an instant read 
+		ID_rs1_addr <= IFID_IR(19 DOWNTO 15);
+		ID_rs2_addr <= IFID_IR(24 DOWNTO 20);
+
 		--testing signals
 		dbg_IF_IR   <= IF_IR;
 		dbg_IFID_IR <= IFID_IR;
@@ -199,11 +228,26 @@ architecture rtl of processor is
 			IR => IF_IR, 
 			NPC => IF_NPC
 		);
+
+		RF_stage : register_file port map(
+			clk => clk,
+			reset => reset,
+			rs1_addr => ID_rs1_addr,
+			rs2_addr => ID_rs2_addr,
+			rs1_data => RF_rs1_data,
+			rs2_data => RF_rs2_data,
+			write_enable => WB_regfile_write_en,
+			write_addr => WB_regfile_write_addr,
+			write_data => WB_regfile_write_data
+		);
+
 		ID_stage : instruction_decode port map(
 			clk => clk,
 			reset => reset,
 			IR => IFID_IR,
 			NPC => IFID_NPC,
+			A_in => RF_rs1_data,
+			B_in => RF_rs2_data,
 			A => ID_A,
 			B => ID_B,
 			Imm => ID_Imm,

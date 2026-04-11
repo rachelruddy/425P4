@@ -21,6 +21,7 @@ vmap work $LIB
 vcom -2008 -work $LIB $SRC_DIR/memory.vhd
 vcom -2008 -work $LIB $SRC_DIR/instruction_fetch.vhd
 vcom -2008 -work $LIB $SRC_DIR/instruction_decode.vhd
+vcom -2008 -work $LIB $SRC_DIR/register_file.vhd
 vcom -2008 -work $LIB $SRC_DIR/processor.vhd
 vcom -2008 -work $LIB $SRC_DIR/integration_if_id_tb.vhd
 
@@ -45,10 +46,12 @@ if {[file exists $PROGRAM_IN]} {
 # -----------------------------------------------------------------------------
 # Load register file
 # -----------------------------------------------------------------------------
+run 1.1ns
+
 if {[file exists $REG_INIT]} {
     puts "Loading register file..."
     mem load -infile $REG_INIT -format binary \
-        /integration_if_id_tb/uut/ID_stage/regs
+        /integration_if_id_tb/uut/RF_stage/regs
     puts "Register file loaded."
 } else {
     puts "WARNING: $REG_INIT not found - registers default to 0."
