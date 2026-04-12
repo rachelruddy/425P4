@@ -80,7 +80,25 @@ entity processor is
 		dbg_EXMEM_MemRead_out : OUT STD_LOGIC;
 		dbg_EXMEM_MemWrite_out : OUT STD_LOGIC;
 		dbg_EXMEM_RegWrite_out : OUT STD_LOGIC;
-		dbg_EXMEM_MemToReg_out : OUT STD_LOGIC
+		dbg_EXMEM_MemToReg_out : OUT STD_LOGIC;
+		
+		-- outputs of MEM
+	   dbg_MEM_LMD_out        : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+	   dbg_MEM_ALUResult_out  : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+	   dbg_MEM_IR_out         : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+	   dbg_MEM_NPC_out        : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+	   dbg_MEM_RegWrite_out   : OUT STD_LOGIC;
+	   dbg_MEM_MemToReg_out   : OUT STD_LOGIC;
+		
+		-- MEM/WB pipeline registers
+	   dbg_MEMWB_LMD_out      : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+	   dbg_MEMWB_ALUResult_out: OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+	   dbg_MEMWB_IR_out       : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+	   dbg_MEMWB_NPC_out      : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+	   dbg_MEMWB_RegWrite_out : OUT STD_LOGIC;
+	   dbg_MEMWB_MemToReg_out : OUT STD_LOGIC
+		
+		
 	);
 
 end processor;
@@ -188,11 +206,22 @@ architecture rtl of processor is
 	-----------------------------------
 	-- STAGE 4: MEM --------------------
 	-----------------------------------
+	signal MEM_LMD_out : STD_LOGIC_VECTOR(31 DOWNTO 0);      -- load memory data
+	signal MEM_ALUResult_out : STD_LOGIC_VECTOR(31 DOWNTO 0); -- pass-through ALU result
+	signal MEM_IR_out : STD_LOGIC_VECTOR(31 DOWNTO 0);        -- pass-through IR
+	signal MEM_NPC_out : STD_LOGIC_VECTOR(31 DOWNTO 0);       -- pass-through NPC
+	signal MEM_RegWrite_out : STD_LOGIC;
+	signal MEM_MemToReg_out : STD_LOGIC;
 	
 	-----------------------------------
 	-- MEM/WB Pipeline registers -----
 	-----------------------------------
-	
+	signal MEMWB_LMD_out       : STD_LOGIC_VECTOR(31 DOWNTO 0);
+	signal MEMWB_ALUResult_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
+	signal MEMWB_IR_out        : STD_LOGIC_VECTOR(31 DOWNTO 0);
+	signal MEMWB_NPC_out       : STD_LOGIC_VECTOR(31 DOWNTO 0);
+	signal MEMWB_RegWrite_out  : STD_LOGIC;
+	signal MEMWB_MemToReg_out  : STD_LOGIC;
 	
 	
 	-----------------------------------
@@ -292,6 +321,28 @@ architecture rtl of processor is
 		);
 	end component;
 	
+	component mem_pipeline is
+		 port(
+			  clk          : in  STD_LOGIC;
+			  reset        : in  STD_LOGIC;
+			  ALUResult    : in  STD_LOGIC_VECTOR(31 DOWNTO 0);
+			  B_in         : in  STD_LOGIC_VECTOR(31 DOWNTO 0);
+			  IR_in        : in  STD_LOGIC_VECTOR(31 DOWNTO 0);
+			  NPC_in       : in  STD_LOGIC_VECTOR(31 DOWNTO 0);
+			  MemRead      : in  STD_LOGIC;
+			  MemWrite     : in  STD_LOGIC;
+			  MemFunc      : in  STD_LOGIC_VECTOR(2 DOWNTO 0);
+			  RegWrite     : in  STD_LOGIC;
+			  MemToReg     : in  STD_LOGIC;
+			  LMD_out      : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+			  ALUResult_out: out STD_LOGIC_VECTOR(31 DOWNTO 0);
+			  IR_out       : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+			  NPC_out      : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+			  RegWrite_out : out STD_LOGIC;
+			  MemToReg_out : out STD_LOGIC
+		 );
+	end component;
+	
 	begin
 		-- rf read addresses come directly from the instruction currently in IF/ID
 		-- combinatorial outside of clocked process so it can be an instant read 
@@ -367,6 +418,22 @@ architecture rtl of processor is
 		dbg_EXMEM_MemWrite_out <= EXMEM_MemWrite_out;
 		dbg_EXMEM_RegWrite_out <= EXMEM_RegWrite_out;
 		dbg_EXMEM_MemToReg_out <= EXMEM_MemToReg_out;
+		
+		-- outputs of MEM
+		dbg_MEM_LMD_out        <= MEM_LMD_out;
+	   dbg_MEM_ALUResult_out  <= MEM_ALUResult_out;
+	   dbg_MEM_IR_out         <= MEM_IR_out;
+	   dbg_MEM_NPC_out        <= MEM_NPC_out;
+	   dbg_MEM_RegWrite_out   <= MEM_RegWrite_out;
+	   dbg_MEM_MemToReg_out   <= MEM_MemToReg_out;
+		
+		-- MEM/WB
+		dbg_MEMWB_LMD_out       <= MEMWB_LMD_out;
+	   dbg_MEMWB_ALUResult_out <= MEMWB_ALUResult_out;
+	   dbg_MEMWB_IR_out        <= MEMWB_IR_out;
+	   dbg_MEMWB_NPC_out       <= MEMWB_NPC_out;
+	   dbg_MEMWB_RegWrite_out  <= MEMWB_RegWrite_out;
+	   dbg_MEMWB_MemToReg_out  <= MEMWB_MemToReg_out;
 		
 
 		-- pipeline stage instantiations
@@ -450,8 +517,29 @@ architecture rtl of processor is
 			 RegWrite_out => EX_RegWrite_out,
 			 MemToReg_out => EX_MemToReg_out
 		);
+
+		 MEM_stage : mem_pipeline
+		 port map(
+			  clk           => clk,
+			  reset			 => reset,
+			  ALUResult     => EXMEM_ALUResult_out,
+			  B_in          => EXMEM_B_out,
+			  IR_in         => EXMEM_IR_out,
+			  NPC_in        => EXMEM_NPC_out,
+			  MemRead       => EXMEM_MemRead_out,
+			  MemWrite      => EXMEM_MemWrite_out,
+			  MemFunc       => "010",  -- always word access (LW/SW only)
+			  RegWrite      => EXMEM_RegWrite_out,
+			  MemToReg      => EXMEM_MemToReg_out,
+			  LMD_out       => MEM_LMD_out,
+			  ALUResult_out => MEM_ALUResult_out,
+			  IR_out        => MEM_IR_out,
+			  NPC_out       => MEM_NPC_out,
+			  RegWrite_out  => MEM_RegWrite_out,
+			  MemToReg_out  => MEM_MemToReg_out
+		 );
 		
-		-- FETCH
+		-- IF/ID pipeline registers
 		process(clk, reset)
 		begin
 			if reset = '1' then
@@ -475,7 +563,7 @@ architecture rtl of processor is
 			end if;
 		end process;
 
-		-- DECODE
+		-- ID/EX pipeline registers
 		process(clk, reset)
 		begin
 			if reset = '1' then
@@ -562,7 +650,7 @@ architecture rtl of processor is
 			end if;
 		end process;
 		
-		--EXECUTE
+		-- EX/MEM pipeline registers
 		process(clk, reset)
 		begin
 			if reset = '1' then
@@ -620,6 +708,32 @@ architecture rtl of processor is
 					EXMEM_MemToReg_out <= EX_MemToReg_out;
 					
 				end if;
+			end if;
+		end process;
+		
+		-- MEM/WB pipeline registers
+		process(clk, reset)
+		begin
+			if reset = '1' then
+				-- reset MEM/WB pipeline registers
+				MEMWB_LMD_out       <= (others => '0');
+				MEMWB_ALUResult_out <= (others => '0');
+				MEMWB_IR_out        <= (others => '0');
+				MEMWB_NPC_out       <= (others => '0');
+				MEMWB_RegWrite_out  <= '0';
+				MEMWB_MemToReg_out  <= '0';
+
+			elsif rising_edge(clk) then
+				-- when branch taken, flush IF/ID and ID/EX, so this this should be valid
+				-- i think stall shouldnt affect this stage - rachel
+				MEMWB_LMD_out       <= MEM_LMD_out;
+			   MEMWB_ALUResult_out <= MEM_ALUResult_out;
+			   MEMWB_IR_out        <= MEM_IR_out;
+			   MEMWB_NPC_out       <= MEM_NPC_out;
+			   MEMWB_RegWrite_out  <= MEM_RegWrite_out;
+			   MEMWB_MemToReg_out  <= MEM_MemToReg_out;
+					
+				
 			end if;
 		end process;
 end rtl;
