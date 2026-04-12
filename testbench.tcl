@@ -14,8 +14,7 @@
 # Usage (in ModelSim console):
 #   do testbench.tcl
 #
-# ADAPT: search for "ADAPT" comments and update signal paths to match
-#        any differently named VHDL entity and signal names.
+# 
 # =============================================================================
 
 
@@ -26,7 +25,7 @@
 set SRC_DIR     "."
 set LIB         "work"
 set TB_ENTITY   "processor_tb"
-set PROGRAM_IN  "program.txt"
+set PROGRAM_IN  "factorial_bin.txt"
 set MEM_OUT     "memory.txt"
 set REGFILE_OUT "register_file.txt"
 set MEM_WORDS   8192
@@ -70,23 +69,17 @@ vsim -t 1ps $LIB.$TB_ENTITY
 # -----------------------------------------------------------------------------
 # 3. Assert reset
 # -----------------------------------------------------------------------------
-# ADAPT: update signal path if your reset signal has a different name
 force -freeze /processor_tb/reset 1 0
 
 
 # -----------------------------------------------------------------------------
 # 4. Load program.txt into instruction memory
 # -----------------------------------------------------------------------------
-# ADAPT: update path to match your instruction memory hierarchy:
-#   /processor_tb/uut          <- processor instance
-#   /instr_fetch               <- instruction_fetch instance inside processor
-#   /instr_memory              <- memory instance inside instruction_fetch
-#   /ram_block                 <- memory array signal inside memory.vhd
 
 if {[file exists $PROGRAM_IN]} {
     puts "Loading $PROGRAM_IN into instruction memory..."
     mem load -infile $PROGRAM_IN -format binary \
-        /processor_tb/uut/instr_fetch/instr_memory/ram_block
+        /processor_tb/uut/IF_stage/instr_memory/ram_block
     puts "Program loaded successfully."
 } else {
     puts "ERROR: $PROGRAM_IN not found — make sure it is in the same folder as this script."
@@ -116,18 +109,13 @@ puts "Simulation complete."
 # Reads every word of data memory and writes as a 32-char binary string.
 # Output has 8192 lines, one per 32-bit word, as required by the spec.
 #
-# ADAPT: update path to match your data memory hierarchy:
-#   /processor_tb/uut          <- processor instance
-#   /mem_stage                 <- mem_pipeline instance inside processor
-#   /data_mem                  <- memory instance inside mem_pipeline
-#   /ram_block                 <- memory array signal inside memory.vhd
 
 puts "Writing data memory to $MEM_OUT..."
 set mem_file [open $MEM_OUT w]
 
 for {set i 0} {$i < $MEM_WORDS} {incr i} {
     # ADAPT: update this path
-    set word [examine -radix binary /processor_tb/uut/mem_stage/data_mem/ram_block($i)]
+    set word [examine -radix binary /processor_tb/uut/MEM_stage/data_mem/ram_block($i)]
     set word [string map {" " ""} $word]
     set word [format "%032s" $word]
     set word [string map {" " "0"} $word]
@@ -144,17 +132,12 @@ puts "Wrote $MEM_WORDS words to $MEM_OUT."
 # Reads each of the 32 registers and writes as a 32-char binary string.
 # x0 should always be 0x00000000.
 #
-# ADAPT: update path to match your register file hierarchy:
-#   /processor_tb/uut          <- processor instance
-#   /reg_file                  <- register_file instance inside processor
-#   /regs                 <- register array signal inside register_file.vhd
 
 puts "Writing register file to $REGFILE_OUT..."
 set reg_file [open $REGFILE_OUT w]
 
 for {set i 0} {$i < $NUM_REGS} {incr i} {
-    # ADAPT: update this path
-    set word [examine -radix binary /processor_tb/uut/reg_file/regs($i)]
+    set word [examine -radix binary /processor_tb/uut/RF_stage/regs($i)]
     set word [string map {" " ""} $word]
     set word [format "%032s" $word]
     set word [string map {" " "0"} $word]
