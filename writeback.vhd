@@ -35,7 +35,7 @@ architecture rtl of writeback is
                   ALUOutput;
 
     -- protect from writing to r0, should be kept as zero
-    write_enable <= RegWrite when rd /= "0" else '0';
+    write_enable <= RegWrite when rd /= "00000" else '0';
 	 -- added this signal here to detect if rd = 0 because test in tb werent passing when rd = 0000. now in clocked process, theres an if statement that checks this signal, and tests work, so write is disabled when rd = 0000
 	 x0_error <= '1' when (rd = "00000") else '0';
 

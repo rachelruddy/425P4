@@ -1,0 +1,67 @@
+# vsim -c work.integration_data_hazards_tb -do "dbg.do" 
+# Start time: 16:57:43 on Apr 12,2026
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.integration_data_hazards_tb(tb)
+# Loading work.processor(rtl)
+# Loading work.instruction_fetch(rtl)
+# Loading work.memory(rtl)
+# Loading work.register_file(rtl)
+# Loading work.instruction_decode(rtl)
+# Loading work.execute(rtl)
+# Loading work.alu(rtl)
+# Loading work.mem_pipeline(rtl)
+# Loading work.writeback(rtl)
+# do dbg.do
+# ** Error: extra characters after close-quote
+# Error in macro ./dbg.do line 21
+# extra characters after close-quote
+#     while executing
+# "vsim -c work.integration_data_hazards_tb -do "
+# mem load -infile integration_data_hazards_bin.txt -format binary /integration_data_hazards_tb/uut/IF_st..."
+# End time: 16:57:57 on Apr 12,2026, Elapsed time: 0:00:14
+# Errors: 3, Warnings: 0
+# vsim -c work.integration_data_hazards_tb -do "dbg.do" 
+# Start time: 16:57:57 on Apr 12,2026
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.integration_data_hazards_tb(tb)
+# Loading work.processor(rtl)
+# Loading work.instruction_fetch(rtl)
+# Loading work.memory(rtl)
+# Loading work.register_file(rtl)
+# Loading work.instruction_decode(rtl)
+# Loading work.execute(rtl)
+# Loading work.alu(rtl)
+# Loading work.mem_pipeline(rtl)
+# Loading work.writeback(rtl)
+# do dbg.do
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /integration_data_hazards_tb/uut/MEM_stage
+# ** Warning: NUMERIC_STD."<": metavalue detected, returning FALSE
+#    Time: 0 ps  Iteration: 0  Instance: /integration_data_hazards_tb/uut/EX_stage/alu_inst
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /integration_data_hazards_tb/uut/EX_stage/alu_inst
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /integration_data_hazards_tb/uut/RF_stage
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /integration_data_hazards_tb/uut/RF_stage
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /integration_data_hazards_tb/uut/IF_stage
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /integration_data_hazards_tb/uut/EX_stage/alu_inst
+# ** Error: wrong # args: should be "time command ?count?"
+# Error in macro ./dbg.do line 21
+# wrong # args: should be "time command ?count?"
+#     while executing
+# "time"
+#     ("for" body line 16)
+#     invoked from within
+# "for {set t 0} {$t < 20} {incr t} {
+#   run 1ns;
+#   set ifid [examine -radix hex /integration_data_hazards_tb/uut/IFID_IR];
+#   set idex [examine -radix hex..."

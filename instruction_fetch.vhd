@@ -73,9 +73,14 @@ architecture rtl of instruction_fetch is
 				
 			-- clocked process for PC update
 			elsif rising_edge(clk) then
-				IR_reg <= IR_mem;
-				NPC_reg <= std_logic_vector(unsigned(PC) + 4);
-				if (stall = '0') then
+				if (stall = '1') then
+					-- freeze fetch stage outputs and PC during data hazard stall
+					PC <= PC;
+					IR_reg <= IR_reg;
+					NPC_reg <= NPC_reg;
+				else
+					IR_reg <= IR_mem;
+					NPC_reg <= std_logic_vector(unsigned(PC) + 4);
 					if (cond = '0') then
 						PC <= std_logic_vector(unsigned(PC) + 4);
 					else
