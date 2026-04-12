@@ -190,7 +190,9 @@ architecture rtl of processor is
 	-- cond- branch condition result (branch taken or not)
 	signal cond : STD_LOGIC := '0';
 	-- will need an output of this stage to be the branch target address, used in IF
-	signal branch_target : STD_LOGIC_VECTOR(31 DOWNTO 0) := (others => '0');
+	signal branch_target : STD_LOGIC_VECTOR(31 DOWNTO 0);
+	-- this signal will remember that a branch was taken last cycle- allows us to flush the instruction that was up next in pc when branch was being resolved in ex
+	signal branch_taken_reg : STD_LOGIC := '0';
 	
 	signal EX_ALUResult_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
    signal EX_B_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -400,6 +402,10 @@ architecture rtl of processor is
 		-- combinatorial outside of clocked process so it can be an instant read 
 		ID_rs1_addr <= IFID_IR(19 DOWNTO 15);
 		ID_rs2_addr <= IFID_IR(24 DOWNTO 20);
+		
+		-- control hazards (from branch taken or jal/jalr) concurrent logic
+		cond          <= EX_BranchTaken;
+		branch_target <= EX_BranchTarget;
 
 		--testing signals
 		--outputs of IF
@@ -629,6 +635,17 @@ architecture rtl of processor is
 			  regfile_write_addr => WB_regfile_write_addr,
 			  regfile_write_data => WB_regfile_write_data
 		 );
+		 
+		 branch_delay : process(clk)
+			begin
+				 if rising_edge(clk) then
+					  if reset = '1' then
+							branch_taken_reg <= '0';
+					  else
+							branch_taken_reg <= cond;
+					  end if;
+				 end if;
+			end process;
 		
 		-- IF/ID pipeline registers
 		process(clk, reset)
@@ -644,7 +661,7 @@ architecture rtl of processor is
 					IFID_NPC <= IFID_NPC;
 				-- if branch is taken, IR and NPC will be zerod out- let this indicate a NOP
 				-- will also need to flush out other control signals like RegWrite, MemWrite, MemRead, Branch...
-			   elsif cond = '1' then
+			   elsif cond = '1' or branch_taken_reg = '1' then
 					IFID_IR  <= (others => '0');
 					IFID_NPC <= (others => '0');
 			   else
@@ -698,7 +715,7 @@ architecture rtl of processor is
 					IDEX_RegWrite <= IDEX_RegWrite;
 					IDEX_MemToReg <= IDEX_MemToReg;
 
-				elsif cond = '1' then
+				elsif cond = '1' or branch_taken_reg = '1' then
 					-- flush decode output on taken branch (inject bubble)
 					IDEX_A <= (others => '0');
 					IDEX_B <= (others => '0');
@@ -775,21 +792,7 @@ architecture rtl of processor is
 					EXMEM_RegWrite_out <= EXMEM_RegWrite_out;
 					EXMEM_MemToReg_out <= EXMEM_MemToReg_out;
 
-				-- need to check if this will flush the current instruction in execute
-				elsif cond = '1' then
-					-- flush exec output on taken branch (inject bubble)
-					EXMEM_ALUResult_out <= (others => '0');
-					EXMEM_B_out <= (others => '0');
-					EXMEM_IR_out <= (others => '0');
-					EXMEM_NPC_out <= (others => '0');
-					EXMEM_BranchTaken <= '0';
-					EXMEM_BranchTarget <= (others => '0');
-					EXMEM_Jump_out    <= '0';
-					EXMEM_JumpReg_out <= '0';
-					EXMEM_MemRead_out <= '0';
-					EXMEM_MemWrite_out <= '0';
-					EXMEM_RegWrite_out <= '0';
-					EXMEM_MemToReg_out <= '0';
+				-- no cond  = '1' logic because dont want to flush branch instr itself
 
 				else
 					-- latch exec outputs into EX/MEM pipeline registers
