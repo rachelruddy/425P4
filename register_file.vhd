@@ -35,7 +35,7 @@ begin
     begin
         if rising_edge(clk) then
             if reset = '1' then
-                regs <= (others => (others => '0'));
+                regs <= (others => (others => '0'));  
             else
                 if write_enable = '1' and write_addr /= "00000" then -- protect against rd = 0
                     regs(to_integer(unsigned(write_addr))) <= write_data;

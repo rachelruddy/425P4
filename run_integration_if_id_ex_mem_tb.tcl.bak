@@ -69,7 +69,7 @@ add wave /integration_if_id_exec_tb/reset
 add wave -radix hexadecimal /integration_if_id_exec_tb/uut/dbg_IF_IR
 add wave -radix hexadecimal /integration_if_id_exec_tb/uut/dbg_EX_RegWrite_out
 add wave -radix hexadecimal /integration_if_id_exec_tb/uut/dbg_EXMEM_RegWrite_out
-add wave -radix hexadecimal /integration_if_id_exec_tb/uut/dbg_B
+
 
 
 
