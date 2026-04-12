@@ -15,19 +15,23 @@ ENTITY mem_stage IS
         MemRead : IN STD_LOGIC;
         MemWrite : IN STD_LOGIC;
 
-
         MemFunc : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
 
         RegWrite : IN STD_LOGIC;
         MemToReg : IN STD_LOGIC;
 
+        Jump_in : IN STD_LOGIC;
+        JumpReg_in : IN STD_LOGIC;
 
         LMD_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         ALUResult_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         IR_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         NPC_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         RegWrite_out : OUT STD_LOGIC;
-        MemToReg_out : OUT STD_LOGIC
+        MemToReg_out : OUT STD_LOGIC;
+        Jump_flag_out : OUT STD_LOGIC;
+        JumpReg_flag_out : OUT STD_LOGIC;
+        rd_addr_out : OUT STD_LOGIC_VECTOR(4 DOWNTO 0)
     );
 END mem_stage;
 
@@ -66,7 +70,6 @@ ARCHITECTURE rtl OF mem_stage IS
     SIGNAL mem_waitrequest : STD_LOGIC;
 
     SIGNAL lmd_comb : STD_LOGIC_VECTOR(31 DOWNTO 0);
-    SIGNAL rmw_word : STD_LOGIC_VECTOR(31 DOWNTO 0);
 
 BEGIN
 
@@ -76,7 +79,7 @@ BEGIN
     data_mem : memory
     GENERIC MAP(
         ram_size => 8192,
-        mem_delay => 1 ns,
+        mem_delay => 0.1 ns,
         clock_period => 1 ns
     )
     PORT MAP(
@@ -92,39 +95,38 @@ BEGIN
     mem_read_en <= MemRead;
 
     PROCESS (MemWrite, MemFunc, B_in, byte_offset, mem_readdata)
+        VARIABLE write_modify_word : STD_LOGIC_VECTOR(31 DOWNTO 0);
     BEGIN
         mem_write_en <= '0';
         mem_writedata <= (OTHERS => '0');
-        rmw_word <= mem_readdata;
 
         IF MemWrite = '1' THEN
             mem_write_en <= '1';
+            write_modify_word := mem_readdata;
 
             CASE MemFunc IS
 
                 WHEN MF_BYTE =>
-                    rmw_word <= mem_readdata;
                     CASE byte_offset IS
-                        WHEN "00" => rmw_word(7 DOWNTO 0) <= B_in(7 DOWNTO 0);
-                        WHEN "01" => rmw_word(15 DOWNTO 8) <= B_in(7 DOWNTO 0);
-                        WHEN "10" => rmw_word(23 DOWNTO 16) <= B_in(7 DOWNTO 0);
-                        WHEN OTHERS => rmw_word(31 DOWNTO 24) <= B_in(7 DOWNTO 0);
+                        WHEN "00" => write_modify_word(7 DOWNTO 0) := B_in(7 DOWNTO 0);
+                        WHEN "01" => write_modify_word(15 DOWNTO 8) := B_in(7 DOWNTO 0);
+                        WHEN "10" => write_modify_word(23 DOWNTO 16) := B_in(7 DOWNTO 0);
+                        WHEN OTHERS => write_modify_word(31 DOWNTO 24) := B_in(7 DOWNTO 0);
                     END CASE;
-                    mem_writedata <= rmw_word;
 
                 WHEN MF_HALF =>
-                    rmw_word <= mem_readdata;
                     IF byte_offset(1) = '0' THEN
-                        rmw_word(15 DOWNTO 0) <= B_in(15 DOWNTO 0);
+                        write_modify_word(15 DOWNTO 0) := B_in(15 DOWNTO 0);
                     ELSE
-                        rmw_word(31 DOWNTO 16) <= B_in(15 DOWNTO 0);
+                        write_modify_word(31 DOWNTO 16) := B_in(15 DOWNTO 0);
                     END IF;
-                    mem_writedata <= rmw_word;
 
                 WHEN OTHERS =>
-                    mem_writedata <= B_in;
+                    write_modify_word := B_in;
 
             END CASE;
+
+            mem_writedata <= write_modify_word;
         END IF;
     END PROCESS;
 
@@ -188,6 +190,9 @@ BEGIN
                 NPC_out <= (OTHERS => '0');
                 RegWrite_out <= '0';
                 MemToReg_out <= '0';
+                Jump_flag_out <= '0';
+                JumpReg_flag_out <= '0';
+                rd_addr_out <= (OTHERS => '0');
             ELSE
                 LMD_out <= lmd_comb;
                 ALUResult_out <= ALUResult;
@@ -195,6 +200,11 @@ BEGIN
                 NPC_out <= NPC_in;
                 RegWrite_out <= RegWrite;
                 MemToReg_out <= MemToReg;
+                Jump_flag_out <= Jump_in;
+                JumpReg_flag_out <= JumpReg_in;
+                rd_addr_out <= IR_in(11 DOWNTO 7);
             END IF;
         END IF;
     END PROCESS pipeline_reg;
+
+END rtl;
