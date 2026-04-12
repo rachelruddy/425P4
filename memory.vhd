@@ -35,7 +35,7 @@ END memory;
 ARCHITECTURE rtl OF memory IS
 	TYPE MEM IS ARRAY(ram_size-1 downto 0) OF STD_LOGIC_VECTOR(31 DOWNTO 0);
 	--actual memory array
-	SIGNAL ram_block: MEM;
+	SIGNAL ram_block : MEM := (OTHERS => (OTHERS => '0'));
 	-- latched address for reads
 	--SIGNAL read_address_reg: INTEGER RANGE 0 to ram_size-1;
 
@@ -48,11 +48,11 @@ BEGIN
 	mem_process: PROCESS (clock)
 	BEGIN
 		--This is a cheap trick to initialize the SRAM in simulation
-		 --IF(now < 1 ps)THEN
-		 --	For i in 0 to ram_size-1 LOOP
-		 --		ram_block(i) <= (others => '0');
-		 --	END LOOP;
-		 --end if;
+		--IF(now < 1 ps)THEN
+		--	For i in 0 to ram_size-1 LOOP
+		-- 		ram_block(i) <= (others => '0');
+		--	END LOOP;
+		--end if;
 
 		--This is the actual synthesizable SRAM block
 		IF (clock'event AND clock = '1') THEN
@@ -69,7 +69,7 @@ BEGIN
 	--readdata <= ram_block(read_address_reg);
 	readdata <= ram_block(address);
 
-
+	-- Is waitrequest necessary?
 	--The waitrequest signal is used to vary response time in simulation
 	--Read and write should never happen at the same time.
 	waitreq_w_proc: PROCESS (memwrite)
