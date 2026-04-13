@@ -31,6 +31,41 @@ set REGFILE_OUT "register_file.txt"
 set MEM_WORDS   8192
 set NUM_REGS    32
 set NUM_CYCLES  10000
+set DEBUG_TRACE 1
+set DEBUG_CYCLES 120
+
+# -----------------------------------------------------------------------------
+# Debug helpers
+# -----------------------------------------------------------------------------
+
+proc ex_hex {path} {
+    return [string trim [examine -radix hex $path]]
+}
+
+proc ex_dec {path} {
+    return [string trim [examine -radix decimal $path]]
+}
+
+proc print_cycle_debug {cycle} {
+    set pc        [ex_hex /processor_tb/uut/IF_stage/PC]
+    set if_ir     [ex_hex /processor_tb/uut/IF_IR]
+    set ifid_ir   [ex_hex /processor_tb/uut/IFID_IR]
+    set idex_ir   [ex_hex /processor_tb/uut/IDEX_IR]
+    set ex_ir     [ex_hex /processor_tb/uut/EX_IR_out]
+    set ex_alu    [ex_hex /processor_tb/uut/EX_ALUResult_out]
+    set ex_taken  [string trim [examine /processor_tb/uut/EX_BranchTaken]]
+    set ex_tgt    [ex_hex /processor_tb/uut/EX_BranchTarget]
+    set stall     [string trim [examine /processor_tb/uut/stall]]
+    set hz_ex     [string trim [examine /processor_tb/uut/hazard_ex]]
+    set hz_mem    [string trim [examine /processor_tb/uut/hazard_mem]]
+    set hz_wb     [string trim [examine /processor_tb/uut/hazard_wb]]
+    set wb_en     [string trim [examine /processor_tb/uut/WB_regfile_write_en]]
+    set wb_rd     [ex_dec /processor_tb/uut/WB_regfile_write_addr]
+    set wb_data   [ex_hex /processor_tb/uut/WB_regfile_write_data]
+
+    puts [format "C%04d PC=%s IF=%s IFID=%s IDEX=%s EXIR=%s EXALU=%s TAKEN=%s TGT=%s ST=%s HZ(e/m/w)=%s/%s/%s WB(en,rd,data)=%s,%s,%s" \
+        $cycle $pc $if_ir $ifid_ir $idex_ir $ex_ir $ex_alu $ex_taken $ex_tgt $stall $hz_ex $hz_mem $hz_wb $wb_en $wb_rd $wb_data]
+}
 
 
 # -----------------------------------------------------------------------------
@@ -99,7 +134,26 @@ force -freeze /processor_tb/reset 0 0
 
 # run for 10,000 cycles (10,000 ns at 1 GHz)
 puts "Running simulation for $NUM_CYCLES cycles..."
-run ${NUM_CYCLES}ns
+if {$DEBUG_TRACE} {
+    set trace_cycles $DEBUG_CYCLES
+    if {$trace_cycles > $NUM_CYCLES} {
+        set trace_cycles $NUM_CYCLES
+    }
+
+    puts "--- DEBUG TRACE (first $trace_cycles cycles) ---"
+    for {set c 1} {$c <= $trace_cycles} {incr c} {
+        run 1ns
+        print_cycle_debug $c
+    }
+
+    set remaining [expr {$NUM_CYCLES - $trace_cycles}]
+    if {$remaining > 0} {
+        puts "Running remaining $remaining cycles..."
+        run ${remaining}ns
+    }
+} else {
+    run ${NUM_CYCLES}ns
+}
 puts "Simulation complete."
 
 
