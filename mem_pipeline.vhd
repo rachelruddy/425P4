@@ -79,7 +79,9 @@ ARCHITECTURE rtl OF mem_pipeline IS
 
 BEGIN
 
+    -- take word-aligned address (ignore bottom 2 bits)
     word_addr <= TO_INTEGER(UNSIGNED(ALUResult(14 DOWNTO 2)));
+    -- bottom 2 bits tells which byte inside the word we're touching
     byte_offset <= ALUResult(1 DOWNTO 0);
 
     data_mem : memory
@@ -100,7 +102,7 @@ BEGIN
 
     mem_read_en <= MemRead;
 	 
-	 -- combinatorial logic
+	 --forwarding everything to next stage
 	 LMD_out       <= lmd_comb;
 	ALUResult_out <= ALUResult;
 	IR_out        <= IR_in;
@@ -109,14 +111,14 @@ BEGIN
 	MemToReg_out  <= MemToReg;
 	Jump_out       <= Jump;
    JumpReg_out    <= JumpReg;
-	rd_out			<= IR_in(11 DOWNTO 7);
+	rd_out			<= IR_in(11 DOWNTO 7); -- rd field from instruction
 	
 
     PROCESS (MemWrite, MemFunc, B_in, byte_offset, mem_readdata)
     BEGIN
         mem_write_en <= '0';
         mem_writedata <= (OTHERS => '0');
-        rmw_word <= mem_readdata;
+        rmw_word <= mem_readdata; -- start with current memory word (for partial writes)
 
         IF MemWrite = '1' THEN
             mem_write_en <= '1';
@@ -124,6 +126,7 @@ BEGIN
             CASE MemFunc IS
 
                 WHEN MF_BYTE =>
+                    -- read-modify-write since we only change 1 byte
                     rmw_word <= mem_readdata;
                     CASE byte_offset IS
                         WHEN "00" => rmw_word(7 DOWNTO 0) <= B_in(7 DOWNTO 0);
@@ -134,6 +137,7 @@ BEGIN
                     mem_writedata <= rmw_word;
 
                 WHEN MF_HALF =>
+                    -- same idea but for 16 bits
                     rmw_word <= mem_readdata;
                     IF byte_offset(1) = '0' THEN
                         rmw_word(15 DOWNTO 0) <= B_in(15 DOWNTO 0);
@@ -143,6 +147,7 @@ BEGIN
                     mem_writedata <= rmw_word;
 
                 WHEN OTHERS =>
+                    -- normal full word write (SW case)
                     mem_writedata <= B_in;
 
             END CASE;
@@ -159,6 +164,7 @@ BEGIN
             CASE MemFunc IS
 
                 WHEN MF_BYTE =>
+                    -- pick correct byte then sign-extend
                     CASE byte_offset IS
                         WHEN "00" => raw_byte := mem_readdata(7 DOWNTO 0);
                         WHEN "01" => raw_byte := mem_readdata(15 DOWNTO 8);
@@ -168,6 +174,7 @@ BEGIN
                     lmd_comb <= STD_LOGIC_VECTOR(resize(SIGNED(raw_byte), 32));
 
                 WHEN MF_BYTE_U =>
+                    -- same but zero-extend instead
                     CASE byte_offset IS
                         WHEN "00" => raw_byte := mem_readdata(7 DOWNTO 0);
                         WHEN "01" => raw_byte := mem_readdata(15 DOWNTO 8);
@@ -177,6 +184,7 @@ BEGIN
                     lmd_comb <= STD_LOGIC_VECTOR(resize(UNSIGNED(raw_byte), 32));
 
                 WHEN MF_HALF =>
+                    -- 16-bit read with sign extend
                     IF byte_offset(1) = '0' THEN
                         raw_half := mem_readdata(15 DOWNTO 0);
                     ELSE
@@ -185,6 +193,7 @@ BEGIN
                     lmd_comb <= STD_LOGIC_VECTOR(resize(SIGNED(raw_half), 32));
 
                 WHEN MF_HALF_U =>
+                    -- 16-bit read with zero extend
                     IF byte_offset(1) = '0' THEN
                         raw_half := mem_readdata(15 DOWNTO 0);
                     ELSE
@@ -193,6 +202,7 @@ BEGIN
                     lmd_comb <= STD_LOGIC_VECTOR(resize(UNSIGNED(raw_half), 32));
 
                 WHEN OTHERS =>
+                    -- normal LW
                     lmd_comb <= mem_readdata;
 
             END CASE;
