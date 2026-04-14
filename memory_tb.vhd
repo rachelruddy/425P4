@@ -99,13 +99,13 @@ BEGIN
         REPORT "FAIL Case 1: basic write/read at address 0" SEVERITY error;
         REPORT "--------------------------------Case 1 done--------------------------------";
 
-        write_word(0, x"12345678");
+            write_word(0, x"12345678");
         read_word(0);
         ASSERT (readdata = x"12345678")
         REPORT "FAIL Case 2: overwrite at address 0 did not update correctly" SEVERITY error;
         REPORT "--------------------------------Case 2 done--------------------------------";
 
-        write_word(0, x"AAAAAAAA");
+            write_word(0, x"AAAAAAAA");
         write_word(1, x"BBBBBBBB");
 
         read_word(0);
@@ -118,7 +118,7 @@ BEGIN
 
         REPORT "--------------------------------Case 3 done--------------------------------";
 
-        write_word(2, x"FFFFFFFF");
+            write_word(2, x"FFFFFFFF");
         write_word(2, x"00000000");
 
         read_word(2);
@@ -127,14 +127,14 @@ BEGIN
 
         REPORT "--------------------------------Case 4 done--------------------------------";
 
-        write_word(8191, x"AABBCCDD");
+            write_word(8191, x"AABBCCDD");
         read_word(8191);
         ASSERT (readdata = x"AABBCCDD")
         REPORT "FAIL Case 5: write/read at last address (8191)" SEVERITY error;
 
         REPORT "--------------------------------Case 5 done--------------------------------";
 
-        write_word(10, x"00000001");
+            write_word(10, x"00000001");
         write_word(11, x"00000002");
         write_word(12, x"00000003");
 
@@ -152,13 +152,13 @@ BEGIN
 
         REPORT "--------------------------------Case 6 done--------------------------------";
 
-        read_word(500);
+            read_word(500);
         ASSERT (readdata = x"00000000")
         REPORT "FAIL Case 7: unwritten address not zero" SEVERITY error;
 
         REPORT "--------------------------------Case 7 done--------------------------------";
 
-        write_word(30, x"11223344");
+            write_word(30, x"11223344");
         write_word(31, x"55667788");
 
         address <= 30;
@@ -173,7 +173,7 @@ BEGIN
 
         REPORT "--------------------------------Case 8 done--------------------------------";
 
-        write_word(0, x"FACE0001");
+            write_word(0, x"FACE0001");
         write_word(8191, x"FACE8191");
 
         read_word(0);
@@ -186,14 +186,14 @@ BEGIN
 
         REPORT "--------------------------------Case 9 done--------------------------------";
 
-        write_word(50, x"01020304");
+            write_word(50, x"01020304");
         read_word(50);
         ASSERT (readdata = x"01020304")
         REPORT "FAIL Case 10: byte-lane pattern mismatch" SEVERITY error;
 
         REPORT "--------------------------------Case 10 done--------------------------------";
 
-        write_word(40, x"11111111");
+            write_word(40, x"11111111");
         write_word(40, x"22222222");
         write_word(40, x"33333333");
 
@@ -203,7 +203,7 @@ BEGIN
 
         REPORT "--------------------------------Case 11 done--------------------------------";
 
-        write_word(60, x"CAFE1234");
+            write_word(60, x"CAFE1234");
         write_word(61, x"BEEF5678");
         write_word(62, x"DEAD9ABC");
 
@@ -213,7 +213,7 @@ BEGIN
 
         REPORT "--------------------------------Case 12 done--------------------------------";
 
-        REPORT "Tests completed";
+            REPORT "Tests completed";
 
         WAIT;
 

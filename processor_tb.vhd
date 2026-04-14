@@ -7,34 +7,34 @@
 -- in testbench.tcl.
 -- =============================================================================
 
-library ieee;
-use ieee.std_logic_1164.all;
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
 
-entity processor_tb is
-end processor_tb;
+ENTITY processor_tb IS
+END processor_tb;
 
-architecture behavior of processor_tb is
+ARCHITECTURE behavior OF processor_tb IS
 
-    component processor is
-        port(
-            clk   : in std_logic;
-            reset : in std_logic
+    COMPONENT processor IS
+        PORT (
+            clk : IN STD_LOGIC;
+            reset : IN STD_LOGIC
         );
-    end component;
+    END COMPONENT;
 
-    signal clk   : std_logic := '0';
-    signal reset : std_logic := '1';
+    SIGNAL clk : STD_LOGIC := '0';
+    SIGNAL reset : STD_LOGIC := '1';
 
-begin
+BEGIN
 
     -- Instantiate processor
     uut : processor
-        port map(
-            clk   => clk,
-            reset => reset
-        );
+    PORT MAP(
+        clk => clk,
+        reset => reset
+    );
 
     -- Clock generation: 1 GHz (1 ns period)
-    clk <= not clk after 0.5 ns;
+    clk <= NOT clk AFTER 0.5 ns;
 
-end behavior;
+END behavior;

@@ -9,271 +9,263 @@
 -- Results printed to ModelSim console via report statements.
 -- Also check the txt file outputed by the tcl
 
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+USE ieee.numeric_std.ALL;
 
-entity mem_tb is
-end mem_tb;
+ENTITY mem_tb IS
+END mem_tb;
 
-architecture behavior of mem_tb is
+ARCHITECTURE behavior OF mem_tb IS
 
-    component mem_stage is
-        port (
-            clk          : in  std_logic;
-            reset        : in  std_logic;
-            ALUResult    : in  std_logic_vector(31 downto 0);
-            B_in         : in  std_logic_vector(31 downto 0);
-            IR_in        : in  std_logic_vector(31 downto 0);
-            NPC_in       : in  std_logic_vector(31 downto 0);
-            MemRead      : in  std_logic;
-            MemWrite     : in  std_logic;
-            MemFunc      : in  std_logic_vector(2 downto 0);
-            RegWrite     : in  std_logic;
-            MemToReg     : in  std_logic;
-            LMD_out      : out std_logic_vector(31 downto 0);
-            ALUResult_out: out std_logic_vector(31 downto 0);
-            IR_out       : out std_logic_vector(31 downto 0);
-            NPC_out      : out std_logic_vector(31 downto 0);
-            RegWrite_out : out std_logic;
-            MemToReg_out : out std_logic
+    COMPONENT mem_stage IS
+        PORT (
+            clk : IN STD_LOGIC;
+            reset : IN STD_LOGIC;
+            ALUResult : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+            B_in : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+            IR_in : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+            NPC_in : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+            MemRead : IN STD_LOGIC;
+            MemWrite : IN STD_LOGIC;
+            MemFunc : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+            RegWrite : IN STD_LOGIC;
+            MemToReg : IN STD_LOGIC;
+            LMD_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+            ALUResult_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+            IR_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+            NPC_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+            RegWrite_out : OUT STD_LOGIC;
+            MemToReg_out : OUT STD_LOGIC
         );
-    end component;
+    END COMPONENT;
 
-    constant CLK_PERIOD : time := 1 ns;
-    signal clk          : std_logic := '0';
-    signal reset        : std_logic := '1';
-    signal ALUResult    : std_logic_vector(31 downto 0) := (others => '0');
-    signal B_in         : std_logic_vector(31 downto 0) := (others => '0');
-    signal IR_in        : std_logic_vector(31 downto 0) := (others => '0');
-    signal NPC_in       : std_logic_vector(31 downto 0) := (others => '0');
-    signal MemRead      : std_logic := '0';
-    signal MemWrite     : std_logic := '0';
-    signal MemFunc      : std_logic_vector(2 downto 0) := "010";  -- word
-    signal RegWrite     : std_logic := '0';
-    signal MemToReg     : std_logic := '0';
-    signal LMD_out      : std_logic_vector(31 downto 0);
-    signal ALUResult_out: std_logic_vector(31 downto 0);
-    signal IR_out       : std_logic_vector(31 downto 0);
-    signal NPC_out      : std_logic_vector(31 downto 0);
-    signal RegWrite_out : std_logic;
-    signal MemToReg_out : std_logic;
+    CONSTANT CLK_PERIOD : TIME := 1 ns;
+    SIGNAL clk : STD_LOGIC := '0';
+    SIGNAL reset : STD_LOGIC := '1';
+    SIGNAL ALUResult : STD_LOGIC_VECTOR(31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL B_in : STD_LOGIC_VECTOR(31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL IR_in : STD_LOGIC_VECTOR(31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL NPC_in : STD_LOGIC_VECTOR(31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL MemRead : STD_LOGIC := '0';
+    SIGNAL MemWrite : STD_LOGIC := '0';
+    SIGNAL MemFunc : STD_LOGIC_VECTOR(2 DOWNTO 0) := "010"; -- word
+    SIGNAL RegWrite : STD_LOGIC := '0';
+    SIGNAL MemToReg : STD_LOGIC := '0';
+    SIGNAL LMD_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
+    SIGNAL ALUResult_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
+    SIGNAL IR_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
+    SIGNAL NPC_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
+    SIGNAL RegWrite_out : STD_LOGIC;
+    SIGNAL MemToReg_out : STD_LOGIC;
 
-    signal sim_done : boolean := false;
+    SIGNAL sim_done : BOOLEAN := false;
 
-begin
+BEGIN
 
     -- Instantiate unit under test
     uut : mem_stage
-        port map(
-            clk           => clk,
-            reset         => reset,
-            ALUResult     => ALUResult,
-            B_in          => B_in,
-            IR_in         => IR_in,
-            NPC_in        => NPC_in,
-            MemRead       => MemRead,
-            MemWrite      => MemWrite,
-            MemFunc       => MemFunc,
-            RegWrite      => RegWrite,
-            MemToReg      => MemToReg,
-            LMD_out       => LMD_out,
-            ALUResult_out => ALUResult_out,
-            IR_out        => IR_out,
-            NPC_out       => NPC_out,
-            RegWrite_out  => RegWrite_out,
-            MemToReg_out  => MemToReg_out
-        );
+    PORT MAP(
+        clk => clk,
+        reset => reset,
+        ALUResult => ALUResult,
+        B_in => B_in,
+        IR_in => IR_in,
+        NPC_in => NPC_in,
+        MemRead => MemRead,
+        MemWrite => MemWrite,
+        MemFunc => MemFunc,
+        RegWrite => RegWrite,
+        MemToReg => MemToReg,
+        LMD_out => LMD_out,
+        ALUResult_out => ALUResult_out,
+        IR_out => IR_out,
+        NPC_out => NPC_out,
+        RegWrite_out => RegWrite_out,
+        MemToReg_out => MemToReg_out
+    );
 
     -- Clock generation
-    clk_process : process
-    begin
-        while not sim_done loop
+    clk_process : PROCESS
+    BEGIN
+        WHILE NOT sim_done LOOP
             clk <= '0';
-            wait for CLK_PERIOD / 2;
+            WAIT FOR CLK_PERIOD / 2;
             clk <= '1';
-            wait for CLK_PERIOD / 2;
-        end loop;
-        wait;
-    end process;
+            WAIT FOR CLK_PERIOD / 2;
+        END LOOP;
+        WAIT;
+    END PROCESS;
 
     -- -------------------------------------------------------------------------
     -- Main test process
     -- -------------------------------------------------------------------------
-    test_process : process
+    test_process : PROCESS
 
-        variable pass_count : integer := 0;
-        variable fail_count : integer := 0;
-        variable expected   : std_logic_vector(31 downto 0);
+        VARIABLE pass_count : INTEGER := 0;
+        VARIABLE fail_count : INTEGER := 0;
+        VARIABLE expected : STD_LOGIC_VECTOR(31 DOWNTO 0);
 
-    begin
+    BEGIN
 
-        report "=== mem_stage_tb starting ===" severity note;
+        REPORT "=== mem_stage_tb starting ===" SEVERITY note;
 
         -- Reset for 2 cycles
-        reset    <= '1';
-        MemRead  <= '0';
+        reset <= '1';
+        MemRead <= '0';
         MemWrite <= '0';
-        wait for CLK_PERIOD * 2;
+        WAIT FOR CLK_PERIOD * 2;
         reset <= '0';
-        wait for CLK_PERIOD;
+        WAIT FOR CLK_PERIOD;
 
+        REPORT "Test 1: SW - writing 0xDEADBEEF to address 0x00000010..." SEVERITY note;
 
-
-        report "Test 1: SW - writing 0xDEADBEEF to address 0x00000010..." severity note;
-
-        ALUResult <= x"00000010";       -- byte address 16 -> word address 4
-        B_in      <= x"DEADBEEF";       -- data to write
-        MemWrite  <= '1';
-        MemRead   <= '0';
-        MemFunc   <= "010";             -- word
+        ALUResult <= x"00000010"; -- byte address 16 -> word address 4
+        B_in <= x"DEADBEEF"; -- data to write
+        MemWrite <= '1';
+        MemRead <= '0';
+        MemFunc <= "010"; -- word
 
         -- wait for memory to complete write (waitrequest goes low then high)
-        wait until rising_edge(clk);
-        wait for CLK_PERIOD / 2;
+        WAIT UNTIL rising_edge(clk);
+        WAIT FOR CLK_PERIOD / 2;
 
         -- check ALUResult passes through correctly
         expected := x"00000010";
-        if ALUResult_out = expected then
-            report "Test 1a PASSED: ALUResult_out = 0x" & to_hstring(ALUResult_out) severity note;
+        IF ALUResult_out = expected THEN
+            REPORT "Test 1a PASSED: ALUResult_out = 0x" & to_hstring(ALUResult_out) SEVERITY note;
             pass_count := pass_count + 1;
-        else
-            report "Test 1a FAILED: ALUResult_out = 0x" & to_hstring(ALUResult_out) &
-                   " (expected 0x" & to_hstring(expected) & ")" severity error;
+        ELSE
+            REPORT "Test 1a FAILED: ALUResult_out = 0x" & to_hstring(ALUResult_out) &
+                " (expected 0x" & to_hstring(expected) & ")" SEVERITY error;
             fail_count := fail_count + 1;
-        end if;
+        END IF;
 
         -- deassert write
         MemWrite <= '0';
-        wait for CLK_PERIOD;
+        WAIT FOR CLK_PERIOD;
+        REPORT "Test 2: LW - reading back from address 0x00000010..." SEVERITY note;
 
-        
-        report "Test 2: LW - reading back from address 0x00000010..." severity note;
-
-        ALUResult <= x"00000010";       -- same address
-        MemRead   <= '1';
-        MemWrite  <= '0';
-        MemFunc   <= "010";             -- word
+        ALUResult <= x"00000010"; -- same address
+        MemRead <= '1';
+        MemWrite <= '0';
+        MemFunc <= "010"; -- word
 
         -- wait for memory read to complete
-        wait until rising_edge(clk);
-        wait until rising_edge(clk);
-        wait for CLK_PERIOD / 2;
+        WAIT UNTIL rising_edge(clk);
+        WAIT UNTIL rising_edge(clk);
+        WAIT FOR CLK_PERIOD / 2;
 
         expected := x"DEADBEEF";
-        if LMD_out = expected then
-            report "Test 2 PASSED: LMD_out = 0x" & to_hstring(LMD_out) &
-                   " (expected 0xDEADBEEF)" severity note;
+        IF LMD_out = expected THEN
+            REPORT "Test 2 PASSED: LMD_out = 0x" & to_hstring(LMD_out) &
+                " (expected 0xDEADBEEF)" SEVERITY note;
             pass_count := pass_count + 1;
-        else
-            report "Test 2 FAILED: LMD_out = 0x" & to_hstring(LMD_out) &
-                   " (expected 0xDEADBEEF)" severity error;
+        ELSE
+            REPORT "Test 2 FAILED: LMD_out = 0x" & to_hstring(LMD_out) &
+                " (expected 0xDEADBEEF)" SEVERITY error;
             fail_count := fail_count + 1;
-        end if;
+        END IF;
 
         MemRead <= '0';
-        wait for CLK_PERIOD;
-
-    
-        report "Test 3: SW then LW at address 0x00000020..." severity note;
+        WAIT FOR CLK_PERIOD;
+        REPORT "Test 3: SW then LW at address 0x00000020..." SEVERITY note;
 
         ALUResult <= x"00000020";
-        B_in      <= x"12345678";
-        MemWrite  <= '1';
-        MemRead   <= '0';
+        B_in <= x"12345678";
+        MemWrite <= '1';
+        MemRead <= '0';
 
-        wait until rising_edge(clk);
-        wait for CLK_PERIOD / 2;
+        WAIT UNTIL rising_edge(clk);
+        WAIT FOR CLK_PERIOD / 2;
 
         MemWrite <= '0';
-        wait for CLK_PERIOD;
+        WAIT FOR CLK_PERIOD;
 
         -- now read it back
         ALUResult <= x"00000020";
-        MemRead   <= '1';
-        MemWrite  <= '0';
+        MemRead <= '1';
+        MemWrite <= '0';
 
-        wait until rising_edge(clk);
-        wait until rising_edge(clk);
-        wait for CLK_PERIOD / 2;
+        WAIT UNTIL rising_edge(clk);
+        WAIT UNTIL rising_edge(clk);
+        WAIT FOR CLK_PERIOD / 2;
 
         expected := x"12345678";
-        if LMD_out = expected then
-            report "Test 3 PASSED: LMD_out = 0x" & to_hstring(LMD_out) &
-                   " (expected 0x12345678)" severity note;
+        IF LMD_out = expected THEN
+            REPORT "Test 3 PASSED: LMD_out = 0x" & to_hstring(LMD_out) &
+                " (expected 0x12345678)" SEVERITY note;
             pass_count := pass_count + 1;
-        else
-            report "Test 3 FAILED: LMD_out = 0x" & to_hstring(LMD_out) &
-                   " (expected 0x12345678)" severity error;
+        ELSE
+            REPORT "Test 3 FAILED: LMD_out = 0x" & to_hstring(LMD_out) &
+                " (expected 0x12345678)" SEVERITY error;
             fail_count := fail_count + 1;
-        end if;
+        END IF;
 
         MemRead <= '0';
-        wait for CLK_PERIOD;
+        WAIT FOR CLK_PERIOD;
 
-        report "Test 4: Verifying address 0x00000010 still holds 0xDEADBEEF..." severity note;
+        REPORT "Test 4: Verifying address 0x00000010 still holds 0xDEADBEEF..." SEVERITY note;
 
         ALUResult <= x"00000010";
-        MemRead   <= '1';
-        MemWrite  <= '0';
+        MemRead <= '1';
+        MemWrite <= '0';
 
-        wait until rising_edge(clk);
-        wait until rising_edge(clk);
-        wait for CLK_PERIOD / 2;
+        WAIT UNTIL rising_edge(clk);
+        WAIT UNTIL rising_edge(clk);
+        WAIT FOR CLK_PERIOD / 2;
 
         expected := x"DEADBEEF";
-        if LMD_out = expected then
-            report "Test 4 PASSED: LMD_out = 0x" & to_hstring(LMD_out) &
-                   " (expected 0xDEADBEEF)" severity note;
+        IF LMD_out = expected THEN
+            REPORT "Test 4 PASSED: LMD_out = 0x" & to_hstring(LMD_out) &
+                " (expected 0xDEADBEEF)" SEVERITY note;
             pass_count := pass_count + 1;
-        else
-            report "Test 4 FAILED: LMD_out = 0x" & to_hstring(LMD_out) &
-                   " (expected 0xDEADBEEF)" severity error;
+        ELSE
+            REPORT "Test 4 FAILED: LMD_out = 0x" & to_hstring(LMD_out) &
+                " (expected 0xDEADBEEF)" SEVERITY error;
             fail_count := fail_count + 1;
-        end if;
+        END IF;
 
         MemRead <= '0';
-
-        
-        report "Test 5: Checking control signal passthrough..." severity note;
+        REPORT "Test 5: Checking control signal passthrough..." SEVERITY note;
 
         RegWrite <= '1';
         MemToReg <= '1';
-        IR_in    <= x"AABBCCDD";
-        NPC_in   <= x"00000008";
-        wait for CLK_PERIOD;
-        wait for CLK_PERIOD / 2;
+        IR_in <= x"AABBCCDD";
+        NPC_in <= x"00000008";
+        WAIT FOR CLK_PERIOD;
+        WAIT FOR CLK_PERIOD / 2;
 
-        if RegWrite_out = '1' and MemToReg_out = '1' and
-           IR_out = x"AABBCCDD" and NPC_out = x"00000008" then
-            report "Test 5 PASSED: control signals pass through correctly" severity note;
+        IF RegWrite_out = '1' AND MemToReg_out = '1' AND
+            IR_out = x"AABBCCDD" AND NPC_out = x"00000008" THEN
+            REPORT "Test 5 PASSED: control signals pass through correctly" SEVERITY note;
             pass_count := pass_count + 1;
-        else
-            report "Test 5 FAILED: RegWrite_out=" & std_logic'image(RegWrite_out) &
-                   " MemToReg_out=" & std_logic'image(MemToReg_out) &
-                   " IR_out=0x" & to_hstring(IR_out) &
-                   " NPC_out=0x" & to_hstring(NPC_out) severity error;
+        ELSE
+            REPORT "Test 5 FAILED: RegWrite_out=" & STD_LOGIC'image(RegWrite_out) &
+                " MemToReg_out=" & STD_LOGIC'image(MemToReg_out) &
+                " IR_out=0x" & to_hstring(IR_out) &
+                " NPC_out=0x" & to_hstring(NPC_out) SEVERITY error;
             fail_count := fail_count + 1;
-        end if;
+        END IF;
 
         -- ---------------------------------------------------------------------
         -- Summary
         -- ---------------------------------------------------------------------
-        report "===================================" severity note;
-        report "Results: " & integer'image(pass_count) & " passed, " &
-               integer'image(fail_count) & " failed." severity note;
+        REPORT "===================================" SEVERITY note;
+        REPORT "Results: " & INTEGER'image(pass_count) & " passed, " &
+            INTEGER'image(fail_count) & " failed." SEVERITY note;
 
-        if fail_count = 0 then
-            report "All tests PASSED." severity note;
-        else
-            report "Some tests FAILED - check output above." severity error;
-        end if;
+        IF fail_count = 0 THEN
+            REPORT "All tests PASSED." SEVERITY note;
+        ELSE
+            REPORT "Some tests FAILED - check output above." SEVERITY error;
+        END IF;
 
-        report "=== mem_stage_tb done ===" severity note;
+        REPORT "=== mem_stage_tb done ===" SEVERITY note;
 
         sim_done <= true;
-        wait;
+        WAIT;
 
-    end process;
+    END PROCESS;
 
-end behavior;
+END behavior;
