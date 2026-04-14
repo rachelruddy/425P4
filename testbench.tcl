@@ -25,7 +25,7 @@
 set SRC_DIR     "."
 set LIB         "work"
 set TB_ENTITY   "processor_tb"
-set PROGRAM_IN  "factorial_bin.txt"
+set PROGRAM_IN  "program.txt" # change this to be whatever binary text file you're loading to instr. memory
 set MEM_OUT     "memory.txt"
 set REGFILE_OUT "register_file.txt"
 set MEM_WORDS   8192
