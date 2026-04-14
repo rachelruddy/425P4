@@ -4,11 +4,11 @@ USE ieee.numeric_std.all;
 
 entity ALU is
     port(
-        A : in STD_LOGIC_VECTOR(31 DOWNTO 0);
-        B : in STD_LOGIC_VECTOR(31 DOWNTO 0);
-        ALUFunc : in STD_LOGIC_VECTOR(3 DOWNTO 0);
+        A : in STD_LOGIC_VECTOR(31 DOWNTO 0);  --First value for the alu operation
+        B : in STD_LOGIC_VECTOR(31 DOWNTO 0);  --Second vlaue for the alu operation
+        ALUFunc : in STD_LOGIC_VECTOR(3 DOWNTO 0);  --Which alu function will be performed
 
-        Result : out STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Result : out STD_LOGIC_VECTOR(31 DOWNTO 0);  --The result of the operation
         Eq : out STD_LOGIC;                                   -- A == B
         Lt : out STD_LOGIC                                    -- signed A < signed B
     );
@@ -31,9 +31,9 @@ begin
     -- 0000 add, 0001 sub, 0010 mul, 0011 and, 0100 or,
     -- 0101 sll, 0110 srl, 0111 sra, 1000 xor, 1001 slt, 1010 lui(pass B)
     process(A, B, ALUFunc, sA, sB, uA, uB)
-        variable shiftamt : INTEGER RANGE 0 TO 31;
+        variable shiftamt : INTEGER RANGE 0 TO 31; --If shift occurs this is the amount to shift by
     begin
-        shiftamt := to_integer(unsigned(B(4 DOWNTO 0)));
+        shiftamt := to_integer(unsigned(B(4 DOWNTO 0)));   
         alu_result <= (others => '0');
 
         case ALUFunc is
