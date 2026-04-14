@@ -31,7 +31,7 @@ This testing mainly focused on functionality and correctness. For example, in in
 
 ### Stage 2: Integration Testing — No Hazards
 
-Integration testing was done sequentially in order of the stages in the pipeline. For integration testing, the actual `processor.vhd` component was used, and we integrated many debugging signals that tracked the internal state of pipeline registers, as well as the combinatorial output of the different stage components. The logic in our 5 components is combinatorial, so the output from each stage happens concurrently, and the pipeline registers within `processor.vhd` (`IF/ID`, `ID/EX`, `EX/MEM`, `MEM/WB` signals) latch the outputs on the rising edge.
+Integration testing was done sequentially in order of the stages in the pipeline. For integration testing, the actual `processor.vhd` component was used, and we integrated many debugging signals that tracked the internal state of pipeline registers, as well as the combinatorial output of the different stage components. The logic in our 5 components is combinatorial, so the output from each stage happens concurrently, and the pipeline registers within `processor.vhd` (`IF/ID`, `ID/EX`, `EX/MEM`, `MEM/WB` signals) latch the outputs on the rising edge. Documentation on control signals throughout different stages of the pipeline can be accessed [here](https://docs.google.com/document/d/1J353UHRsj2CpHZGBGfhwRV2TbMqZprSC8EKOCmrZ44E/edit?usp=sharing).
 
 For our first part of integration testing, we tested the pipeline without introducing data or control hazards.
 
