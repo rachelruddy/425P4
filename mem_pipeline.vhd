@@ -11,32 +11,30 @@ ENTITY mem_pipeline IS
         B_in : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         IR_in : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         NPC_in : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-		  Jump       : IN STD_LOGIC;                      -- is this JAL?
-        JumpReg    : IN STD_LOGIC;                      -- is this JALR?
+        Jump : IN STD_LOGIC; -- is this JAL?
+        JumpReg : IN STD_LOGIC; -- is this JALR?
 
         MemRead : IN STD_LOGIC;
         MemWrite : IN STD_LOGIC;
-		  --- this isn't really necessary, this logic is used to select between what type of memory access (byte, halfword, word, unsigned)
-		  --- instructions say we only use LW and SW, so when passing MemFunc into this component it should always be '010'- Rachel
+        --- this isn't really necessary, this logic is used to select between what type of memory access (byte, halfword, word, unsigned)
+        --- instructions say we only use LW and SW, so when passing MemFunc into this component it should always be '010'- Rachel
         MemFunc : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
-		  -------
+        -------
         RegWrite : IN STD_LOGIC;
         MemToReg : IN STD_LOGIC;
-		  
-
         LMD_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         ALUResult_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         IR_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         NPC_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-		  --added these
-		  Jump_out    : OUT STD_LOGIC;
+        --added these
+        Jump_out : OUT STD_LOGIC;
         JumpReg_out : OUT STD_LOGIC;
-		  ---
+        ---
         RegWrite_out : OUT STD_LOGIC;
         MemToReg_out : OUT STD_LOGIC;
-		  
-		  --add this because WB needs destination register
-		  rd_out : OUT STD_LOGIC_VECTOR(4 DOWNTO 0)
+
+        --add this because WB needs destination register
+        rd_out : OUT STD_LOGIC_VECTOR(4 DOWNTO 0)
     );
 END mem_pipeline;
 
@@ -101,19 +99,17 @@ BEGIN
     );
 
     mem_read_en <= MemRead;
-	 
-	 --forwarding everything to next stage
-	 LMD_out       <= lmd_comb;
-	ALUResult_out <= ALUResult;
-	IR_out        <= IR_in;
-	NPC_out       <= NPC_in;
-	RegWrite_out  <= RegWrite;
-	MemToReg_out  <= MemToReg;
-	Jump_out       <= Jump;
-   JumpReg_out    <= JumpReg;
-	rd_out			<= IR_in(11 DOWNTO 7); -- rd field from instruction
-	
 
+    --forwarding everything to next stage
+    LMD_out <= lmd_comb;
+    ALUResult_out <= ALUResult;
+    IR_out <= IR_in;
+    NPC_out <= NPC_in;
+    RegWrite_out <= RegWrite;
+    MemToReg_out <= MemToReg;
+    Jump_out <= Jump;
+    JumpReg_out <= JumpReg;
+    rd_out <= IR_in(11 DOWNTO 7); -- rd field from instruction
     PROCESS (MemWrite, MemFunc, B_in, byte_offset, mem_readdata)
     BEGIN
         mem_write_en <= '0';
@@ -208,6 +204,4 @@ BEGIN
             END CASE;
         END IF;
     END PROCESS;
-
-
 END rtl;
