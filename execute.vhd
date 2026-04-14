@@ -42,6 +42,9 @@ ENTITY execute IS
         NPC_out        : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         BranchTaken    : OUT STD_LOGIC;
         BranchTarget   : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+		  --new added to forward to wb
+		  Jump_out    : OUT STD_LOGIC;
+        JumpReg_out : OUT STD_LOGIC;
 
         -- control signals passed through to MEM/WB
         MemRead_out    : OUT STD_LOGIC;
@@ -92,6 +95,19 @@ ARCHITECTURE rtl OF execute IS
     signal result_to_latch : STD_LOGIC_VECTOR(31 DOWNTO 0);
 
 BEGIN
+	-- combinatorial logic
+	ALUResult_out  <= result_to_latch;
+	B_out          <= B;
+	IR_out         <= IR;
+	NPC_out        <= NPC;
+	BranchTaken    <= branch_taken;
+	BranchTarget   <= branch_target;
+	MemRead_out    <= MemRead;
+	MemWrite_out   <= MemWrite;
+	RegWrite_out   <= RegWrite;
+	MemToReg_out   <= MemToReg;
+	Jump_out       <= Jump;
+   JumpReg_out    <= JumpReg;
 
     -- ALU input mux
     -- ALUSrc=0: use register values A and B (R-type, branches)
@@ -165,34 +181,7 @@ BEGIN
     -- for all other instructions, ALUResult carries the ALU computation result
     result_to_latch <= NPC WHEN (Jump = '1' OR JumpReg = '1') ELSE alu_result;
 
-    -- EX/MEM pipeline register
-    -- latches all outputs on rising clock edge
-    pipeline_reg : PROCESS(clk, reset)
-    BEGIN
-        IF reset = '1' THEN
-            ALUResult_out  <= (OTHERS => '0');
-            B_out          <= (OTHERS => '0');
-            IR_out         <= x"00000000";  
-            NPC_out        <= (OTHERS => '0');
-            BranchTaken    <= '0';
-            BranchTarget   <= (OTHERS => '0');
-            MemRead_out    <= '0';
-            MemWrite_out   <= '0';
-            RegWrite_out   <= '0';
-            MemToReg_out   <= '0';
-
-        ELSIF rising_edge(clk) THEN
-            ALUResult_out  <= result_to_latch;
-            B_out          <= B;
-            IR_out         <= IR;
-            NPC_out        <= NPC;
-            BranchTaken    <= branch_taken;
-            BranchTarget   <= branch_target;
-            MemRead_out    <= MemRead;
-            MemWrite_out   <= MemWrite;
-            RegWrite_out   <= RegWrite;
-            MemToReg_out   <= MemToReg;
-        END IF;
-    END PROCESS pipeline_reg;
+   
+    
 
 END rtl;

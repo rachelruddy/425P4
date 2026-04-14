@@ -19,6 +19,8 @@ end instruction_fetch;
 
 architecture rtl of instruction_fetch is
 	-- component and signal declaration --
+
+	--Initialize the memory that will be used to hold instructions
 	component memory is 
 		GENERIC(
         ram_size : INTEGER := 8192;
@@ -73,13 +75,19 @@ architecture rtl of instruction_fetch is
 				
 			-- clocked process for PC update
 			elsif rising_edge(clk) then
-				IR_reg <= IR_mem;
-				NPC_reg <= std_logic_vector(unsigned(PC) + 4);
-				if (stall = '0') then
+				if (stall = '1') then
+					-- freeze fetch stage outputs and PC during data hazard stall
+					PC <= PC;
+					IR_reg <= IR_reg;
+					NPC_reg <= NPC_reg;
+				else
+					-- Signals if no stall is ordered
+					IR_reg <= IR_mem;
+					NPC_reg <= std_logic_vector(unsigned(PC) + 4);
 					if (cond = '0') then
-						PC <= std_logic_vector(unsigned(PC) + 4);
+						PC <= std_logic_vector(unsigned(PC) + 4); --if there is no branch porcced by incrementing PC
 					else
-						PC <= branch_target;
+						PC <= branch_target; --if there is a branch set PC to the destination
 					end if;
 				end if;
 			end if;

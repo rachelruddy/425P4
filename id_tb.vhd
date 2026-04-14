@@ -17,6 +17,8 @@ architecture behavior of id_tb is
             reset       : in  STD_LOGIC;
             IR          : in  STD_LOGIC_VECTOR(31 DOWNTO 0);
             NPC         : in  STD_LOGIC_VECTOR(31 DOWNTO 0);
+			A_in        : in  STD_LOGIC_VECTOR(31 DOWNTO 0);
+			B_in        : in  STD_LOGIC_VECTOR(31 DOWNTO 0);
             A           : out STD_LOGIC_VECTOR(31 DOWNTO 0);
             B           : out STD_LOGIC_VECTOR(31 DOWNTO 0);
             Imm         : out STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -43,6 +45,8 @@ architecture behavior of id_tb is
     signal reset : STD_LOGIC := '1';
     signal IR    : STD_LOGIC_VECTOR(31 DOWNTO 0) := (others => '0');
     signal NPC   : STD_LOGIC_VECTOR(31 DOWNTO 0) := (others => '0');
+	signal A_in  : STD_LOGIC_VECTOR(31 DOWNTO 0) := (others => '0');
+	signal B_in  : STD_LOGIC_VECTOR(31 DOWNTO 0) := (others => '0');
 
     -- outputs
     signal A          : STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -66,12 +70,24 @@ architecture behavior of id_tb is
 
 begin
 
+	-- Mock register-file read behavior for decode-only testing.
+	--   x1 = 5, x2 = 3, all other registers = 0.
+	A_in <= x"00000005" when IR(19 downto 15) = "00001" else
+			x"00000003" when IR(19 downto 15) = "00010" else
+			(others => '0');
+
+	B_in <= x"00000005" when IR(24 downto 20) = "00001" else
+			x"00000003" when IR(24 downto 20) = "00010" else
+			(others => '0');
+
     uut : instruction_decode
         port map(
             clk        => clk,
             reset      => reset,
             IR         => IR,
             NPC        => NPC,
+			A_in       => A_in,
+			B_in       => B_in,
             A          => A,
             B          => B,
             Imm        => Imm,
